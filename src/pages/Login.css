@@ -1,4 +1,4 @@
-.page-wrapper {
+.login-wrapper {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -6,8 +6,7 @@
   height: 100vh;
   background: #121212;
 }
-
-.form-wrapper {
+.login-wrapper .form-wrapper {
   max-width: 350px;
   color: white;
   background: #1d1d1d;
@@ -19,36 +18,46 @@
   align-items: center;
   gap: 1rem;
 }
-.form-wrapper h1 {
+.login-wrapper .form-wrapper h1 {
   color: #ff4444;
   font-weight: 400;
   letter-spacing: 0.1rem;
   text-align: center;
   width: 100%;
 }
-.form-wrapper input, .form-wrapper button {
+.login-wrapper .form-wrapper input, .login-wrapper .form-wrapper button, .login-wrapper .form-wrapper .error {
   border: none;
   padding: 10px 5px;
   width: 100%;
 }
-.form-wrapper input {
+.login-wrapper .form-wrapper input {
   color: white;
   border-bottom: #ff4444 2px solid;
   background-color: inherit;
   padding: 10px 5px;
   width: 100%;
 }
-.form-wrapper input:focus {
+.login-wrapper .form-wrapper input:focus {
   outline: none;
   border-bottom-color: #ff6666;
 }
-.form-wrapper button {
+.login-wrapper .form-wrapper button {
   background-color: #b8b8b8;
   border-radius: 2px;
 }
-.form-wrapper button:hover {
+.login-wrapper .form-wrapper button:hover {
   cursor: pointer;
   transition: 0.3s all;
   background: #ff5c5c;
   color: #e7e7e7;
+}
+.login-wrapper .form-wrapper button:disabled {
+  cursor: not-allowed;
+  background-color: #ff5c5c;
+  color: #e7e7e7;
+}
+.login-wrapper .form-wrapper .error {
+  background-color: rgba(255, 68, 68, 0.4392156863);
+  border-radius: 5px;
+  border: #b8b8b8 1px solid;
 }/*# sourceMappingURL=Login.css.map */

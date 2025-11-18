@@ -1,18 +1,40 @@
 import React, { useState } from 'react'
 import './Login.scss'
+import {login} from "../services/api"
+import { useNavigate } from "react-router-dom";
 
 function Login() {
     let[username, setUsername] = useState("");
     let[password, setPassword] = useState("");
+    let[errorMsg, setErrorMsg] = useState("");
+    let[loading, setLoading] = useState(false);
 
-    function handleSubmit(e) {
+    const navigate = useNavigate();
+
+    async function handleSubmit(e) {
+        setErrorMsg("");
         e.preventDefault();
-        console.log("Login attempt:", username, password);
-        // later: call login API
+        
+        if(!username || !password) {
+            setErrorMsg("Please fill in all fields.");
+            return;
+        }
+
+        setLoading(true);
+        let res = await login(username, password);
+        setLoading(false);
+
+        if(!res.success) {
+            setErrorMsg(res.error);
+            return;
+        }
+
+        console.log("logged in");
+        navigate("/dashboard");
     }
 
     return (
-        <div className='page-wrapper'>
+        <div className='login-wrapper'>
             <form className='form-wrapper' onSubmit={handleSubmit}>
                 <h1>Login</h1>
 
@@ -30,7 +52,11 @@ function Login() {
                     onChange={(e) => setPassword(e.target.value)}
                 />
 
-                <button type='submit'>Log In</button>
+                {errorMsg != "" && <p className='error'>{errorMsg}</p>}
+                
+                <button type='submit' disabled={loading}>
+                    {loading ? "Loading..." : "Log In"}
+                </button>
             </form>
         </div>
     )
