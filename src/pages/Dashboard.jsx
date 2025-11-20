@@ -33,7 +33,25 @@ function Dashboard() {
     if(addWindow && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [addWindow])
+  }, [addWindow]);
+
+  useEffect(() => {
+    if(!addWindow) return;
+
+    function handleKeyDown(e) {
+      if(e.key === "Escape") {
+        setAddWindow(false);
+        setNewGameName("");
+      }
+    }
+
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    }
+
+  }, [addWindow]);
 
   return (
     <div className='dashboard-wrapper'>
