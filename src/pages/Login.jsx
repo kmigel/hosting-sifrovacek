@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState, useRef } from 'react'
 import './Login.scss'
 import {login} from "../services/api"
 import { useNavigate } from "react-router-dom";
@@ -10,6 +10,11 @@ function Login() {
     let[loading, setLoading] = useState(false);
 
     const navigate = useNavigate();
+    
+    let inputRef = useRef(null);
+    useEffect(() => {
+        inputRef.current.focus();
+    }, []);
 
     async function handleSubmit(e) {
         setErrorMsg("");
@@ -39,6 +44,7 @@ function Login() {
                 <h1>Login</h1>
 
                 <input
+                    ref={inputRef}
                     type='text'
                     placeholder='Username:'
                     value={username}
