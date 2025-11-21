@@ -73,7 +73,9 @@ function Dashboard() {
           <ul className='games-list'>
             {games.map(g => (
               <li key={g.id} onClick={() => navigate(`/game/${g.id}`)}>
-                <p className='game-name'>{g.name}</p>
+                <div className='scroll-box'>
+                  <p className='game-name'>{g.name}</p>
+                </div>
               </li>
             ))}
           </ul>

@@ -74,22 +74,29 @@
                 padding: 1rem;
                 transition: 0.25s ease, transform 0.15s;
 
-                display: flex;
-                justify-content: center;
-                align-items: center;
-
                 &:hover {
                     cursor: pointer;
                     background: #ce4a4a;
                     transform: translateY(-2px);
                 }
 
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                overflow: auto;
                 max-height: 8rem;
-                overflow: hidden;
+
+                .scroll-box {
+                    max-height: 100%;
+                    max-width: 100%;
+                    overflow-y: auto;
+                }
+
                 .game-name {
                     font-size: 1.1rem;
                     text-align: center;
-                    overflow-wrap: anywhere
+                    overflow-wrap: anywhere;
                 }
             }
         }
