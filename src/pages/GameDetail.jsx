@@ -3,6 +3,9 @@ import { useNavigate, useParams} from "react-router-dom";
 import './GameDetail.scss'
 
 import MainSidebar from "./game_detail_components/MainSidebar"
+import TeamsPanel from './game_detail_components/TeamsPanel';
+import TeamForm from './game_detail_components/TeamForm';
+import DeleteTeamConfirm from './game_detail_components/DeleteTeamConfirm';
 
 function generatePassword(len = 5) {
   return Math.random().toString(36).slice(-len);
@@ -16,21 +19,21 @@ let initialTeams = [
 function GameDetail() {
   let { id } = useParams();
   let navigate = useNavigate();
-  let inputRef = React.useRef(null);
+  let inputRef = useRef(null);
 
   let [section, setSection] = useState("teams");
   let [teams, setTeams] = useState(initialTeams);
 
+  let [addTeam, setAddTeam] = useState(false);
+  let [editTeam, setEditTeam] = useState(null);
   let [deletedTeam, setDeletedTeam] = useState(null);
   
-  let [addTeam, setAddTeam] = useState(false);
   let [newName, setNewName] = useState("");
   let [newLogin, setNewLogin] = useState("");
   let [newPassword, setNewPassword] = useState("");
 
-  let [editTeam, setEditTeam] = useState(null);
 
-  function cleanUp() {
+  function cleanUpForm() {
     setNewName("");
     setNewLogin("");
     setNewPassword("");
@@ -43,68 +46,60 @@ function GameDetail() {
   }, [addTeam, editTeam]);
 
   useEffect(() => {
-      if(!addTeam && editTeam === null && deletedTeam === null) return;
+      if(!addTeam && !editTeam && !deletedTeam) return;
   
       function handleKeyDown(e) {
         if(e.key === "Escape") {
-          if(deletedTeam != null) {
-            setDeletedTeam(null);
-          }
-          if(addTeam || editTeam) {
-            cleanUp();
-            setAddTeam(false);
-            setEditTeam(null);
-          }
+          setAddTeam(false);
+          setEditTeam(null);
+          setDeletedTeam(null);
+          cleanUpForm();
         }
       }
   
       window.addEventListener("keydown", handleKeyDown);
-  
       return () => {
         window.removeEventListener("keydown", handleKeyDown);
       }
-  
-    }, [addTeam, deletedTeam, editTeam]);
+    }, [addTeam, editTeam, deletedTeam]);
   
 
-  function handleStartEdit(t) {
+  function startEdit(t) {
     setNewName(t.name);
     setNewLogin(t.login);
     setNewPassword(t.password);
     setEditTeam(t);
   }
 
-  function handleSubmitEdit(team) {
+  function submitEdit() {
     let name = newName.trim();
+    if(!name) return;
     let login = newLogin.trim();
     if(login === "") login = name.toLocaleLowerCase().replace(/\s+/g, "_");
     let password = newPassword || generatePassword();
     
-    if(!name) return;
     setTeams((s) =>
-      s.map((t) => t.id !== team.id ? t : {id: team.id, name, login, password})
+      s.map((t) => t.id !== editTeam.id ? t : {...t, name, login, password})
     );
 
-    cleanUp();
+    cleanUpForm();
     setEditTeam(null);
   }
 
-  function handleAddTeam() {
-    let newId = 1;
-    if(teams.length > 0) newId = teams[teams.length - 1].id + 1;
-    
+  function submitAdd() {    
     let name = newName.trim();
+    if(!name) return;
     let login = newLogin.trim();
     if(login === "") login = name.toLocaleLowerCase().replace(/\s+/g, "_");
     let password = newPassword || generatePassword();
+    let newId = teams.length > 0 ? teams[teams.length - 1].id + 1 : 1;
     
-    if(!name) return;
     setTeams((s) => [...s, {id: newId, name, login, password}]);
-    cleanUp();
+    cleanUpForm();
     setAddTeam(false);
   }
 
-  function handleDeleteTeam(id) {
+  function deleteTeam(id) {
     setTeams((s) => 
       s.filter((t) => t.id !== id)
     );
@@ -114,57 +109,23 @@ function GameDetail() {
   return (
     <div className="game-detail-wrapper">
       <header className='header'>
-        <button className='back-btn' onClick={() => navigate(-1)}>← Back</button>
+        <button className='back-btn' onClick={() => navigate(-1)}>
+          ← Back
+        </button>
         <h1>Game #{id}</h1>
       </header>
+
       <div className='content'>
         <MainSidebar section={section} onChange={setSection}/>
 
         <main className='panel'>
           {section === "teams" && (
-            <section className='panel-teams'>
-              <div className='panel-header'>
-                <h2>Teams</h2>
-                <div className='panel-actions'>
-                  <button className='add-btn' onClick={() => setAddTeam(true)}>
-                    + Add Team
-                  </button>
-                </div>
-              </div>
-
-              {teams.length === 0 ? (
-                <p className='empty'>No teams yet — add your first team.</p>
-              ) : (
-                <div className='team-grid'>
-                  {teams.map((t) => (
-                    <div className='team-card' key={t.id}>
-                      <h3 className="team-name">{t.name}</h3>
-                      <div className="data">
-                        <div className="row">
-                          <span className="label">Login</span>
-                          <span className="value">{t.login}</span>
-                        </div>
-                        <div className="row">
-                          <span className="label">Password</span>
-                          <span className="value monospace">{t.password}</span>
-                        </div>
-                      </div>
-
-                      <div className='card-actions'>
-                        <button className='edit'  onClick={() => handleStartEdit(t)}>
-                          Edit
-                        </button>
-                        <button className='delete' onClick={() => setDeletedTeam(t)}>
-                          Delete
-                        </button>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-
-                
-              )}
-            </section>
+            <TeamsPanel
+              teams={teams}
+              onAdd={() => setAddTeam(true)}
+              onEdit={startEdit}
+              onDelete={setDeletedTeam}
+            />
           )}
 
           {section === "pdfs" && (
@@ -181,131 +142,50 @@ function GameDetail() {
         </main>
       </div>
 
-      {editTeam !== null && (
-        <div className="window-backdrop" onClick={() => {setEditTeam(null); cleanUp()}}>
-          <form
-            className="window"
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleSubmitEdit(editTeam);
-            }}
-          >
-            <h3>Edit Team</h3>
-
-            <input
-              ref={inputRef}
-              placeholder="Team name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-
-            <input
-              placeholder="Team login (optional)"
-              value={newLogin}
-              onChange={(e) => setNewLogin(e.target.value)}
-            />
-
-            <div className="password-row">
-              <input
-                placeholder="Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => setNewPassword(generatePassword())}
-                className="gen"
-              >
-                Generate
-              </button>
-            </div>
-
-            <div className="window-actions">
-              <button type="button" className="cancel" onClick={() => {setEditTeam(null); cleanUp()}}>
-                Cancel
-              </button>
-              <button type="submit">
-                Edit Team
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-
       {addTeam && (
-        <div className="window-backdrop" onClick={() => {setAddTeam(false); cleanUp()}}>
-          <form
-            className="window"
-            onClick={(e) => e.stopPropagation()}
-            onSubmit={(e) => {
-              e.preventDefault();
-              handleAddTeam();
-            }}
-          >
-            <h3>Add Team</h3>
-
-            <input
-              ref={inputRef}
-              placeholder="Team name"
-              value={newName}
-              onChange={(e) => setNewName(e.target.value)}
-            />
-
-            <input
-              placeholder="Team login (optional)"
-              value={newLogin}
-              onChange={(e) => setNewLogin(e.target.value)}
-            />
-
-            <div className="password-row">
-              <input
-                placeholder="Password"
-                value={newPassword}
-                onChange={(e) => setNewPassword(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => setNewPassword(generatePassword())}
-                className="gen"
-              >
-                Generate
-              </button>
-            </div>
-
-            <div className="window-actions">
-              <button type="button" className="cancel" onClick={() => {setAddTeam(false); cleanUp()}}>
-                Cancel
-              </button>
-              <button type="submit" className="confirm">
-                Add Team
-              </button>
-            </div>
-          </form>
-        </div>
+        <TeamForm
+          formTitle="Add Team"
+          name={newName}
+          login={newLogin}
+          password={newPassword}
+          onNameChange={setNewName}
+          onLoginChange={setNewLogin}
+          onPasswordChange={setNewPassword}
+          onGeneratePassword={() => setNewPassword(generatePassword())}
+          onClose={() => {
+            setAddTeam(false);
+            cleanUpForm();
+          }}
+          onSubmit={submitAdd}
+          inputRef={inputRef}
+        />
       )}
 
-      {deletedTeam !== null && (
-        <div className="window-backdrop" onClick={() => setDeletedTeam(null)}>
-          <div className="window" onClick={(e) => e.stopPropagation()}>
-            <h3>Delete team?</h3>
-            <p>
-              Are you sure you want to delete <strong>{deletedTeam.name}</strong>?
-            </p>
+      {editTeam && (
+        <TeamForm
+          formTitle="Edit Team"
+          name={newName}
+          login={newLogin}
+          password={newPassword}
+          onNameChange={setNewName}
+          onLoginChange={setNewLogin}
+          onPasswordChange={setNewPassword}
+          onGeneratePassword={() => setNewPassword(generatePassword())}
+          onClose={() => {
+            setEditTeam(null);
+            cleanUpForm();
+          }}
+          onSubmit={submitEdit}
+          inputRef={inputRef}
+        />
+      )}
 
-            <div className="window-actions">
-              <button className="cancel" onClick={() => setDeletedTeam(null)}>
-                Cancel
-              </button>
-              <button
-                className="delete"
-                onClick={() => handleDeleteTeam(deletedTeam.id)}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
+      {deletedTeam && (
+        <DeleteTeamConfirm
+          team={deletedTeam}
+          onCancel={() => setDeletedTeam(null)}
+          onConfirm={() => deleteTeam(deletedTeam.id)}
+        />
       )}
     </div>
   );
