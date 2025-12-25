@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react'
 import './Login.scss'
-import {login} from "../services/api"
+import {login} from "../services/login"
 import { useNavigate } from "react-router-dom";
 
 function Login() {
