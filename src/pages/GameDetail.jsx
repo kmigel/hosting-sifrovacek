@@ -2,6 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams} from "react-router-dom";
 import './GameDetail.scss'
 
+import MainSidebar from "./game_detail_components/MainSidebar"
+
 function generatePassword(len = 5) {
   return Math.random().toString(36).slice(-len);
 }
@@ -116,25 +118,7 @@ function GameDetail() {
         <h1>Game #{id}</h1>
       </header>
       <div className='content'>
-        <aside className='sidebar'>
-          <button className={section === "teams" ? "active" : ""}
-          onClick={() => setSection("teams")}
-          >
-            Teams
-          </button>
-          
-          <button className={section === "pdfs" ? "active" : ""}
-          onClick={() => setSection("pdfs")}
-          >
-            PDFs
-          </button>
-
-          <button className={section === "settings" ? "active" : ""}
-          onClick={() => setSection("settings")}
-          >
-            Settings
-          </button>
-        </aside>
+        <MainSidebar section={section} onChange={setSection}/>
 
         <main className='panel'>
           {section === "teams" && (
