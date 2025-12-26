@@ -53,13 +53,18 @@ function Dashboard() {
 
   }, [addWindow]);
 
+  function logout() {
+    localStorage.removeItem("token");
+    window.location.href = "/";
+  }
+
   return (
     <div className='dashboard-wrapper'>
       <section className='header'>
         <h1>Welcome, User!</h1>
-        <button className="logout-btn" onClick={() => navigate("/")}>
+        <button className="logout-btn" onClick={() => logout()}>
             Log out
-          </button>
+        </button>
       </section>
       
       <section className='games'>
