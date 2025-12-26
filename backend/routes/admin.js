@@ -21,7 +21,7 @@ router.post("/", verifyToken, async(req, res) => {
         let password_hash = await bcrypt.hash(password, 10);
 
         let result = await pool.query(
-            "INSERT INTO admins (login, password_hash, name) VALUES ($1, $2, $3) RETURNING id, login, name",
+            "INSERT INTO users (login, password_hash, name, role) VALUES ($1, $2, $3, 'admin') RETURNING id, login, name, role",
             [login, password_hash, name]
         );
         res.status(201).json(result.rows[0]);
