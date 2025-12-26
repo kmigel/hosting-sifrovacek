@@ -11,6 +11,13 @@ function Login() {
 
     const navigate = useNavigate();
     
+    useEffect(() => {
+        let token = localStorage.getItem("token");
+        if(token) {
+            navigate("/dashboard", {replace: true});
+        }
+    });
+
     let inputRef = useRef(null);
     useEffect(() => {
         inputRef.current.focus();
