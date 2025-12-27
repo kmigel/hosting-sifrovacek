@@ -107,7 +107,7 @@ function GameDetail() {
   }
 
   return (
-    <div className="game-detail-wrapper">
+    <div className="page-wrapper">
       <header className='header'>
         <button className='back-btn' onClick={() => navigate(-1)}>
           ← Back

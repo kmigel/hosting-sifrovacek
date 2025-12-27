@@ -67,7 +67,7 @@ function Login() {
 
                 {errorMsg != "" && <p className='error'>{errorMsg}</p>}
                 
-                <button type='submit' disabled={loading}>
+                <button className='login-btn' type='submit' disabled={loading}>
                     {loading ? "Loading..." : "Log In"}
                 </button>
             </form>

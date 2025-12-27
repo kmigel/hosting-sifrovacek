@@ -47,7 +47,9 @@
         }
 
 
-        button {
+        .login-btn {
+            color: black;
+            font-weight: 400;
             background-color: #b8b8b8;
             border-radius: 2px;
 
@@ -63,12 +65,6 @@
                 background-color: #ff5c5c;
                 color: #e7e7e7;
             }
-        }
-
-        .error {
-            background-color: #ff444470;
-            border-radius: 5px;
-            border: #b8b8b8 1px solid;
         }
     }
 }

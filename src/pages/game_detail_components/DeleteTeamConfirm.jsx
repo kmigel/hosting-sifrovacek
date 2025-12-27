@@ -7,11 +7,11 @@ function DeleteTeamConfirm({team, onCancel, onConfirm}) {
               Are you sure you want to delete <strong>{team.name}</strong>?
             </p>
 
-            <div className="window-actions">
-              <button className="cancel" onClick={onCancel}>
+            <div className="row">
+              <button className="cancel-btn" onClick={onCancel}>
                 Cancel
               </button>
-              <button className="delete" onClick={onConfirm}>
+              <button className="delete-btn" onClick={onConfirm}>
                 Delete
               </button>
             </div>

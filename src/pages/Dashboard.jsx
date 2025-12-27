@@ -59,12 +59,17 @@ function Dashboard() {
   }
 
   return (
-    <div className='dashboard-wrapper'>
+    <div className='page-wrapper'>
       <section className='header'>
         <h1>Welcome, User!</h1>
-        <button className="logout-btn" onClick={() => logout()}>
-            Log out
-        </button>
+        <div className='btn-container'>
+          <button onClick={() => navigate("/admin")}>
+            Manage Admins
+          </button>
+          <button className="logout-btn" onClick={() => logout()}>
+              Log out
+          </button>
+        </div>
       </section>
       
       <section className='games'>
@@ -89,8 +94,10 @@ function Dashboard() {
       </section>
 
       {addWindow && (
-        <section className='window-wrapper'>
-          <form className='form-wrapper' onSubmit={(e) => {e.preventDefault(); handleAddGame();}}>
+        <section className='window-backdrop' onClick={() => setAddWindow(false)}>
+          <form className='window'
+          onClick={(e) => e.stopPropagation()}
+          onSubmit={(e) => {e.preventDefault(); handleAddGame();}}>
             <h3>Add new game</h3>
             <input
               ref={inputRef}
@@ -99,7 +106,7 @@ function Dashboard() {
               value={newGameName}
               onChange={(e) => setNewGameName(e.target.value)}
             />
-            <div className='btn-wrapper'>
+            <div className='row'>
               <button className='cancel-btn' type='button' onClick={() => {setAddWindow(false); setNewGameName("")}}>
                 Cancel
               </button>

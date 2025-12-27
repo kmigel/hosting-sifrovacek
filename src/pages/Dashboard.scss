@@ -1,155 +1,60 @@
-.dashboard-wrapper {
-    background: #121212;
-    color: white;
+.games {
     width: 100%;
-    min-height: 100vh;
-    padding: 3rem 4rem;
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
+    background: #1d1d1d;
+    padding: 1.5rem 2rem 2rem 2rem;
+    border-radius: 12px;
 
-    button {
-        background: #ce4a4a;
-        padding: 0.4rem 1rem;
-        border-radius: 6px;
-        border: none;
-        color: white;
-        font-weight: 600;
-        cursor: pointer;
-        transition: 0.2s;
-
-        &:hover {
-            background: #e05e5e;
-        }
-    }
-
-    .header {
-        margin: 0px 2rem;
+    .games-header {
         display: flex;
         flex-wrap: wrap;
         justify-content: space-between;
         align-items: center;
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 1rem;
-        }
+        margin-bottom: 1rem;
 
-        .logout-btn {
-            flex-grow: 0;
-            justify-self: flex-end;
+        h2 {
+            margin-bottom: 1rem;
+            font-size: 1.6rem;
+            border-bottom: 2px solid #ce4a4a;
+            padding-bottom: 0.3rem;
         }
     }
 
-    .games {
-        width: 100%;
-        background: #1d1d1d;
-        padding: 1.5rem 2rem 2rem 2rem;
-        border-radius: 12px;
+    .games-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 0;
 
-        .games-header {
-            display: flex;
-            flex-wrap: wrap;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1rem;
+        > li {
+            list-style: none;
+            background-color: #2a2a2a;
+            border-radius: 8px;
+            padding: 1rem;
+            transition: 0.25s ease, transform 0.15s;
 
-            h2 {
-                margin-bottom: 1rem;
-                font-size: 1.6rem;
-                border-bottom: 2px solid #ce4a4a;
-                padding-bottom: 0.3rem;
+            &:hover {
+                cursor: pointer;
+                background: #ce4a4a;
+                transform: translateY(-2px);
             }
-        }
 
-        .games-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-            gap: 1rem;
-            padding: 0;
-
-            > li {
-                list-style: none;
-                background-color: #2a2a2a;
-                border-radius: 8px;
-                padding: 1rem;
-                transition: 0.25s ease, transform 0.15s;
-
-                &:hover {
-                    cursor: pointer;
-                    background: #ce4a4a;
-                    transform: translateY(-2px);
-                }
-
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                overflow: auto;
-                max-height: 8rem;
-
-                .scroll-box {
-                    max-height: 100%;
-                    max-width: 100%;
-                    overflow-y: auto;
-                }
-
-                .game-name {
-                    font-size: 1.1rem;
-                    text-align: center;
-                    overflow-wrap: anywhere;
-                }
-            }
-        }
-    }
-
-    .window-wrapper {
-        position: fixed;
-        inset: 0;
-        background: rgba(0,0,0,0.6);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 20;
-
-        .form-wrapper {
-            max-width: 350px;
-            background: #1d1d1d;
-            
-            padding: 10% 5%;
-            border-radius: 10px;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            gap: 1rem;
+            text-align: center;
+            overflow: auto;
+            max-height: 8rem;
 
-            input, button {
-                border: none;
-                padding: 10px 5px;
-                width: 100%;
-            }
-    
-            input {
-                color: white;
-                border-bottom: #ff4444 2px solid;
-                background-color: inherit;
-                padding: 10px 5px;
-                width: 100%;
-    
-                &:focus {
-                    outline: none;
-                    border-bottom-color: #ff6666;
-                }
+            .scroll-box {
+                max-height: 100%;
+                max-width: 100%;
+                overflow-y: auto;
             }
 
-            .btn-wrapper {
-                width: 100%;
-                display: flex;
-                justify-content: space-between;
-
-                button {
-                    width: 45%;
-                }
+            .game-name {
+                font-size: 1.1rem;
+                text-align: center;
+                overflow-wrap: anywhere;
             }
         }
     }

@@ -1,6 +1,6 @@
 function TeamCard({team, onEdit, onDelete}) {
     return (
-        <div className='team-card'>
+        <div className='card'>
             <h3 className="team-name">{team.name}</h3>
 
             <div className="data">
@@ -14,11 +14,11 @@ function TeamCard({team, onEdit, onDelete}) {
                 </div>
             </div>
 
-            <div className='card-actions'>
-            <button className='edit' onClick={() => onEdit(team)}>
+            <div className='actions'>
+            <button className='edit-btn' onClick={() => onEdit(team)}>
                 Edit
             </button>
-            <button className='delete' onClick={() => onDelete(team)}>
+            <button className='delete-btn' onClick={() => onDelete(team)}>
                 Delete
             </button>
             </div>

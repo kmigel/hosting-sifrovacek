@@ -36,7 +36,7 @@ function TeamForm({
               onChange={(e) => onLoginChange(e.target.value)}
             />
 
-            <div className="password-row">
+            <div className="row">
               <input
                 placeholder="Password"
                 value={password}
@@ -45,17 +45,17 @@ function TeamForm({
               <button
                 type="button"
                 onClick={onGeneratePassword}
-                className="gen"
+                className="gen-btn"
               >
                 Generate
               </button>
             </div>
 
-            <div className="window-actions">
-              <button type="button" className="cancel" onClick={onClose}>
+            <div className="actions">
+              <button type="button" className="cancel-btn" onClick={onClose}>
                 Cancel
               </button>
-              <button type="submit">
+              <button type="submit" className="submit-btn">
                 {formTitle}
               </button>
             </div>

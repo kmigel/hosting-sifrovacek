@@ -15,7 +15,7 @@ function TeamsPanel({teams, onAdd, onEdit, onDelete}) {
             {teams.length === 0 ? (
                 <p className='empty'>No teams yet — add your first team.</p>
                 ) : (
-                <div className='team-grid'>
+                <div className='card-grid'>
                     {teams.map((t) => (
                         <TeamCard
                         key={t.id}
