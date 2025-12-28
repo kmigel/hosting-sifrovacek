@@ -1,9 +1,10 @@
 import { useState } from 'react'
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
+import RequireAuth from './RequireAuth';
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import GameDetail from "./pages/GameDetail";
-import RequireAuth from './RequireAuth';
+import AdminPage from './pages/AdminPage';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route element={<RequireAuth />}>
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/game/:id" element={<GameDetail />} />
+          <Route path="/admin" element={<AdminPage/>} />
         </Route>
       </Routes>
     </BrowserRouter>

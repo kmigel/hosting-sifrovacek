@@ -165,6 +165,11 @@ button {
     background-color: #ff444470;
     border-radius: 5px;
     border: #b8b8b8 1px solid;
+    min-height: 2.5rem;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 .empty {
