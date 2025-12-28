@@ -43,9 +43,30 @@
         h2 {
             margin: 0;
             font-size: 1.2rem;
+        }        
+    }
+}
+
+.assign-window {
+    max-height: 80vh;
+    overflow: scroll;
+
+    .assign-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4em;
+
+        .assign-row {
+            display: flex;
+            justify-content: space-between;
+
+            > button {
+                width: 30% !important;
+            }
         }
     }
 }
+
 
 @media (max-width: 600px) {
     .content {

@@ -1,105 +1,89 @@
 import React, { useState, useRef, useEffect } from 'react'
 import TeamCard from "./TeamCard";
-import UserForm from './UserForm';
-import DeleteConfirm from './DeleteConfirm';
-
-function generatePassword(len = 5) {
-    return Math.random().toString(36).slice(-len);
-}
-
-let initialTeams = [
-    {id: 1, name: "Red team", login: "red", password: generatePassword(), members: []},
-    {id: 2, name: "Yellow team", login: "yellow", password: generatePassword(), members: []},
-]
+import api from '../services/api';
 
 function TeamsPanel({gameId}) {
-    let inputRef = useRef(null);
-    let [teams, setTeams] = useState(initialTeams);
-    let [addTeam, setAddTeam] = useState(false);
-    let [editTeam, setEditTeam] = useState(null);
-    let [deletedTeam, setDeletedTeam] = useState(null);
-
-    let [newName, setNewName] = useState("");
-    let [newLogin, setNewLogin] = useState("");
-    let [newPassword, setNewPassword] = useState("");
-    let [newMembers, setNewMembers] = useState([]);
+    let [teams, setTeams] = useState([]);
+    let [allTeams, setAllTeams] = useState([]);
+    let [showAssign, setShowAssign] = useState(false);
     let [error, setError] = useState("");
 
-    function cleanUpForm() {
-        setNewName("");
-        setNewLogin("");
-        setNewPassword("");
-        setNewMembers([]);
-        setError("");
-    }
-
     useEffect(() => {
-    if(addTeam || editTeam) {
-        inputRef.current.focus();
-    }
-    }, [addTeam, editTeam]);
-
-    useEffect(() => {
-        if(!addTeam && !editTeam && !deletedTeam) return;
-    
+        if(!showAssign) return;
         function handleKeyDown(e) {
-        if(e.key === "Escape") {
-            setAddTeam(false);
-            setEditTeam(null);
-            setDeletedTeam(null);
-            cleanUpForm();
+            if(e.key === "Escape") {
+                setShowAssign(false);
+            }
         }
-        }
-    
         window.addEventListener("keydown", handleKeyDown);
         return () => {
-        window.removeEventListener("keydown", handleKeyDown);
+            window.removeEventListener("keydown", handleKeyDown);
         }
-    }, [addTeam, editTeam, deletedTeam]);
+    }, [showAssign]);
     
+    useEffect(() => {
+        getTeams();
+        getAllTeams();
+    }, []);
 
-    function startEdit(t) {
-        setNewName(t.name);
-        setNewLogin(t.login);
-        setNewPassword(t.password);
-        setNewMembers(t.members || []);
-        setEditTeam(t);
+    async function getAllTeams() {
+        try {
+            let res;
+            res = await api.get(`/team`);
+            let data = res.data;
+            setAllTeams(data);
+        } catch(err) {
+            console.error("Failed to get teams:", err);
+        }
     }
 
-    function submitEdit() {
-        let name = newName.trim();
-        if(!name) return;
-        let login = newLogin.trim();
-        if(login === "") login = name.toLocaleLowerCase().replace(/\s+/g, "_");
-        let password = newPassword || generatePassword();
-        
-        setTeams((s) =>
-            s.map((t) => t.id !== editTeam.id ? t : {...t, name, login, password, members: newMembers})
+    async function getTeams() {
+        try {
+            let res;
+            res = await api.get(`/game/${gameId}/teams`);
+            let data = res.data;
+            setTeams(data);
+        } catch(err) {
+            console.error("Failed to get teams:", err);
+        }
+    }
+
+    async function assignTeam(teamId) {
+        try {
+            await api.post(`/game/${gameId}/teams/${teamId}`);
+            await getTeams();
+        } catch(err) {
+            console.error("Failed to assign team:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
+    async function removeTeam(teamId) {
+        try {
+            await api.delete(`/game/${gameId}/teams/${teamId}`);
+            await getTeams();
+        } catch(err) {
+            console.error("Failed to remove team:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
+    let renderTeamRow = (team) => {
+        let assigned = teams.some(t => t.id === team.id);
+        return (
+            <div key={team.id} className='assign-row'>
+                <span>{team.name} ({team.login})</span>
+                {assigned ? 
+                    <button className='edit-btn' onClick={() => removeTeam(team.id)}>
+                        Remove
+                    </button>
+                    :
+                    <button onClick={() => assignTeam(team.id)}>
+                        Add
+                    </button>
+                }
+            </div>
         );
-
-        cleanUpForm();
-        setEditTeam(null);
-    }
-
-    function submitAdd() {    
-        let name = newName.trim();
-        if(!name) return;
-        let login = newLogin.trim();
-        if(login === "") login = name.toLocaleLowerCase().replace(/\s+/g, "_");
-        let password = newPassword || generatePassword();
-        let newId = teams.length > 0 ? teams[teams.length - 1].id + 1 : 1;
-        
-        setTeams((s) => [...s, {id: newId, name, login, password, members: newMembers}]);
-        cleanUpForm();
-        setAddTeam(false);
-    }
-
-    function deleteTeam(id) {
-        setTeams((s) => 
-            s.filter((t) => t.id !== id)
-        );
-        setDeletedTeam(null);
-        cleanUpForm();
     }
 
     return (
@@ -107,82 +91,43 @@ function TeamsPanel({gameId}) {
             <div className='panel-header'>
                 <h2>Teams</h2>
                 <div className='panel-actions'>
-                    <button className='add-btn' onClick={() => setAddTeam(true)}>
-                    + Add Team
+                    <button className='add-btn' onClick={() => setShowAssign(true)}>
+                        Edit Teams
                     </button>
                 </div>
             </div>
 
             {teams.length === 0 ? (
-                <p className='empty'>No teams yet — add your first team.</p>
+                <p className='empty'>No teams assigned to this game yet.</p>
                 ) : (
                 <div className='card-grid'>
-                    {teams.map((t) => (
+                    {teams.map((team) => (
                         <TeamCard
-                        key={t.id}
-                        team={t}
-                        onEdit={startEdit}
-                        onDelete={setDeletedTeam}
+                        key={team.id}
+                        team={team}
+                        onEdit={null}
+                        onDelete={() => removeTeam(team.id)}
                         />
                     ))}
                 </div>
             )}
 
-        {addTeam && (
-            <UserForm
-            formTitle="Add Team"
-            name={newName}
-            login={newLogin}
-            password={newPassword}
-            members={newMembers}
-            onNameChange={setNewName}
-            onLoginChange={setNewLogin}
-            onPasswordChange={setNewPassword}
-            onMembersChange={setNewMembers}
-            onClose={() => {
-                setAddTeam(false);
-                cleanUpForm();
-            }}
-            onSubmit={submitAdd}
-            inputRef={inputRef}
-            error={error}
-            editing={false}
-            />
-        )}
+            {showAssign && (
+                <div className="window-backdrop" onClick={() => setShowAssign(false)}>
+                    <div className="window assign-window" onClick={e => e.stopPropagation()}>
+                        <h3>Assign or Remove Teams</h3>
+                        <div className="assign-list">
+                            {allTeams.map(renderTeamRow)}
+                        </div>
+                        <div className="actions">
+                            <button className="cancel-btn" onClick={() => setShowAssign(false)}>Close</button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
-        {editTeam && (
-            <UserForm
-                formTitle={`Edit ${editTeam.name}`}
-                name={newName}
-                login={newLogin}
-                password={newPassword}
-                members={newMembers}
-                onNameChange={setNewName}
-                onLoginChange={setNewLogin}
-                onPasswordChange={setNewPassword}
-                onMembersChange={setNewMembers}
-                onClose={() => {
-                    setEditTeam(null);
-                    cleanUpForm();
-                }}
-                onSubmit={submitEdit}
-                inputRef={inputRef}
-                error={error}
-                editing={true}
-            />
-        )}
 
-        {deletedTeam && (
-            <DeleteConfirm
-            name={deletedTeam.name}
-            onCancel={() => {
-                setDeletedTeam(null);
-                cleanUpForm();
-            }}
-            onConfirm={() => deleteTeam(deletedTeam.id)}
-            error={error}
-            />
-        )}
+            {error && <p className="error">{error}</p>}
         </section>
     );
 }
