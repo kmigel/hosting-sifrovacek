@@ -1,4 +1,8 @@
+import React, {useState} from "react";
+
 function TeamCard({team, onEdit, onDelete}) {
+    let[showMembers, setShowMembers] = useState(false);
+
     return (
         <div className='card'>
             <h3 className="team-name">{team.name}</h3>
@@ -8,10 +12,27 @@ function TeamCard({team, onEdit, onDelete}) {
                     <span className="label">Login</span>
                     <span className="value">{team.login}</span>
                 </div>
-                <div className="row">
-                    <span className="label">Password</span>
-                    <span className="value monospace">{team.password}</span>
-                </div>
+                {team.members && team.members.length > 0 && (
+                    <div>
+                        <div className="row">
+                            <span className="label">Members:</span>
+                            <button
+                                type="button"
+                                className="edit-btn"
+                                onClick={() => setShowMembers(!showMembers)}
+                            >
+                                {showMembers ? "Hide" : "Show"}
+                            </button>
+                        </div>
+                        {showMembers && (
+                            <ul className="members-list">
+                                {team.members.map((m, i) => (
+                                <li key={i}>{i + 1 < team.members.length ? `${m}, ` : m}</li>
+                                ))}
+                            </ul>
+                        )}
+                    </div>
+                )}
             </div>
 
             <div className='actions'>

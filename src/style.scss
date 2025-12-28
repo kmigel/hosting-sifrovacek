@@ -152,11 +152,26 @@ button {
                 gap: 0.5rem;
                 color: #ddd;
                 font-size: 0.9rem;
+                align-items: center;
             }
 
             .monospace {
                 font-family: monospace;
             }                  
+        }
+
+        .members-list {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.2rem;
+            font-size: 0.9rem;
+            color: white;
+            padding-left: 0.5rem;
+            padding-top: 0.2rem;
+            li {
+                overflow-wrap: anywhere;
+            }
         }
     }
 }
