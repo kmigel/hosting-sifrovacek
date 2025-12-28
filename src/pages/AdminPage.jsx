@@ -2,8 +2,8 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './AdminPage.scss';
 import api from '../services/api'
-import UserForm from './UserForm'
-import DeleteUserConfirm from './DeleteUserConfirm';
+import UserForm from '../components/UserForm'
+import DeleteUserConfirm from '../components/DeleteUserConfirm';
 
 function AdminPage() {
     let inputRef = useRef(null);

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.scss'
 import api from '../services/api'
-import GameForm from './GameForm';
+import GameForm from '../components/GameForm';
 
 function Dashboard() {
   const navigate = useNavigate();
