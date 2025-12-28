@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import './AdminPage.scss';
 import api from '../services/api'
 import UserForm from '../components/UserForm'
-import DeleteUserConfirm from '../components/DeleteUserConfirm';
+import DeleteConfirm from '../components/DeleteConfirm';
 
 function AdminPage() {
     let inputRef = useRef(null);
@@ -190,8 +190,8 @@ function AdminPage() {
         )}
 
         {deletedAdmin && (
-            <DeleteUserConfirm
-                user={deletedAdmin}
+            <DeleteConfirm
+                name={deletedAdmin.name}
                 onCancel={() => {
                     setDeletedAdmin(null);
                     cleanUpForm();

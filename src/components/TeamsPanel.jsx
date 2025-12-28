@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import TeamCard from "./TeamCard";
 import UserForm from './UserForm';
-import DeleteUserConfirm from './DeleteUserConfirm';
+import DeleteConfirm from './DeleteConfirm';
 
 function generatePassword(len = 5) {
     return Math.random().toString(36).slice(-len);
@@ -166,8 +166,8 @@ function TeamsPanel({gameId}) {
         )}
 
         {deletedTeam && (
-            <DeleteUserConfirm
-            user={deletedTeam}
+            <DeleteConfirm
+            name={deletedTeam.name}
             onCancel={() => {
                 setDeletedTeam(null);
                 cleanUpForm();

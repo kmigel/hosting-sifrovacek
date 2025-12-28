@@ -1,10 +1,10 @@
-function DeleteUserConfirm({user, onCancel, onConfirm, error}) {
+function DeleteConfirm({name, onCancel, onConfirm, error}) {
     return (
         <div className="window-backdrop" onClick={onCancel}>
           <div className="window" onClick={(e) => e.stopPropagation()}>
-            <h3>Delete user?</h3>
+            <h3>Delete {name}?</h3>
             <p>
-              Are you sure you want to delete <strong>{user.name}</strong>?
+              Are you sure you want to delete <strong>{name}</strong>?
             </p>
 
             <div className="row">
@@ -22,4 +22,4 @@ function DeleteUserConfirm({user, onCancel, onConfirm, error}) {
     );
 }
 
-export default DeleteUserConfirm;
+export default DeleteConfirm;
