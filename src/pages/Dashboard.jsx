@@ -1,57 +1,72 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import './Dashboard.scss'
-
-let initialGames = [
-  {id: 1, name: "Podzimní soustředění"},
-  {id: 2, name: "Zkratka"},
-  {id: 3, name: "Tmou"},
-  {id: 4, name: "SuperDlouhéJménoJakoFaktCoSemMámPsátAaaA"},
-]
+import api from '../services/api'
+import GameForm from './GameForm';
 
 function Dashboard() {
-  let inputRef = useRef(null);
   const navigate = useNavigate();
-  let [games, setGames] = useState(initialGames);
-  let [addWindow, setAddWindow] = useState(false);
-  let [newGameName, setNewGameName] = useState("");
+  let inputRef = useRef(null);
+  let[games, setGames] = useState([]);
 
-  function handleAddGame() {
-    let newName = newGameName.trim();
-    if(newName === "") return;
-    let newId = games[games.length - 1].id + 1;
-    let newGame = {
-      id: newId,
-      name: newName,
-    };
-    setGames([...games, newGame]);
-    setNewGameName("");
-    setAddWindow(false);
+  let[addGame, setAddGame] = useState(false);
+  let[newTitle, setNewTitle] = useState("");
+  let[error, setError] = useState("");
+
+  useEffect(() => {
+    getGames();
+  }, []);
+
+  useEffect(() => {
+    if(addGame && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [addGame]);
+
+  function cleanUp() {
+    setNewTitle("");
+    setError("");
+  }
+
+  async function getGames() {
+    try {
+        let res = await api.get('/game');
+        let data = res.data;
+        setGames(data);
+    } catch(err) {
+        console.error("Failed to get games:", err);
+    }
+  }
+
+  async function createGame() {
+    try {
+      await api.post("/game", {
+        title: newTitle
+      });
+      cleanUp();
+      setAddGame(false);
+      await getGames();
+    } catch(err) {
+      console.error("Failed to create admin", err);
+      setError(err.response?.data?.error || err.message);
+    }
   }
 
   useEffect(() => {
-    if(addWindow && inputRef.current) {
-      inputRef.current.focus();
-    }
-  }, [addWindow]);
-
-  useEffect(() => {
-    if(!addWindow) return;
+    if(!addGame) return;
 
     function handleKeyDown(e) {
       if(e.key === "Escape") {
-        setAddWindow(false);
-        setNewGameName("");
+        setAddGame(false);
+        cleanUp();
       }
     }
-
     window.addEventListener("keydown", handleKeyDown);
-
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     }
 
-  }, [addWindow]);
+  }, [addGame]);
 
   function logout() {
     localStorage.removeItem("token");
@@ -75,7 +90,7 @@ function Dashboard() {
       <section className='games'>
         <div className='games-header'>
           <h2>My games</h2>
-          <button className="add-btn" onClick={() => setAddWindow(true)}>
+          <button className="add-btn" onClick={() => setAddGame(true)}>
             + Add Game
           </button>
         </div>
@@ -84,38 +99,29 @@ function Dashboard() {
             {games.map(g => (
               <li key={g.id} onClick={() => navigate(`/game/${g.id}`)}>
                 <div className='scroll-box'>
-                  <p className='game-name'>{g.name}</p>
+                  <p className='game-name'>{g.title}</p>
                 </div>
               </li>
             ))}
           </ul>
         ) :
-        (<p>No games yet</p>)}
+        (<p className='empty'>No games yet</p>)}
       </section>
 
-      {addWindow && (
-        <section className='window-backdrop' onClick={() => setAddWindow(false)}>
-          <form className='window'
-          onClick={(e) => e.stopPropagation()}
-          onSubmit={(e) => {e.preventDefault(); handleAddGame();}}>
-            <h3>Add new game</h3>
-            <input
-              ref={inputRef}
-              type='text'
-              placeholder='New game name:'
-              value={newGameName}
-              onChange={(e) => setNewGameName(e.target.value)}
-            />
-            <div className='row'>
-              <button className='cancel-btn' type='button' onClick={() => {setAddWindow(false); setNewGameName("")}}>
-                Cancel
-              </button>
-              <button className='submit-btn' type='submit'>
-                Submit
-              </button>
-            </div>
-          </form>
-        </section>
+      {addGame && (
+        <GameForm
+          formTitle={"Add game"}
+          title={newTitle}
+          onTitleChange={setNewTitle}
+          onClose={() => {
+            setAddGame(false);
+            setError("")
+          }}
+          onSubmit={createGame}
+          inputRef={inputRef}
+          error={error}
+          editing={false}
+        />
       )}
     </div>
   );
