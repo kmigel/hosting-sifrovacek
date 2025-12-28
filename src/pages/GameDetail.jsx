@@ -5,7 +5,7 @@ import './GameDetail.scss'
 import MainSidebar from "./game_detail_components/MainSidebar"
 import TeamsPanel from './game_detail_components/TeamsPanel';
 import UserForm from './UserForm';
-import DeleteTeamConfirm from './game_detail_components/DeleteTeamConfirm';
+import DeleteUserConfirm from './DeleteUserConfirm';
 
 function generatePassword(len = 5) {
   return Math.random().toString(36).slice(-len);
@@ -37,6 +37,7 @@ function GameDetail() {
     setNewName("");
     setNewLogin("");
     setNewPassword("");
+    setError("");
   }
 
   useEffect(() => {
@@ -104,6 +105,7 @@ function GameDetail() {
       s.filter((t) => t.id !== id)
     );
     setDeletedTeam(null);
+    cleanUpForm();
   }
 
   return (
@@ -181,10 +183,14 @@ function GameDetail() {
       )}
 
       {deletedTeam && (
-        <DeleteTeamConfirm
-          team={deletedTeam}
-          onCancel={() => setDeletedTeam(null)}
+        <DeleteUserConfirm
+          user={deletedTeam}
+          onCancel={() => {
+            setDeletedTeam(null);
+            cleanUpForm();
+          }}
           onConfirm={() => deleteTeam(deletedTeam.id)}
+          error={error}
         />
       )}
     </div>
