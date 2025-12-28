@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import './AdminPage.scss';
+import './UserPage.scss';
 import api from '../services/api'
 import UserForm from '../components/UserForm'
 import DeleteConfirm from '../components/DeleteConfirm';
@@ -118,8 +118,8 @@ function AdminPage() {
             <button onClick={() => navigate("/dashboard")}>Back to Dashboard</button>
         </section>
       
-        <section className='admins'>
-            <div className='admins-header'>
+        <section className='users'>
+            <div className='users-header'>
                 <h2>Admins</h2>
                 <button className="add-btn" onClick={() => setAddAdmin(true)}>
                     + Add Admin
@@ -155,6 +155,7 @@ function AdminPage() {
             name={newName}
             login={newLogin}
             password={newPassword}
+            members={null}
             onNameChange={setNewName}
             onLoginChange={setNewLogin}
             onPasswordChange={setNewPassword}
@@ -175,6 +176,7 @@ function AdminPage() {
             name={newName}
             login={newLogin}
             password={newPassword}
+            members={null}
             onNameChange={setNewName}
             onLoginChange={setNewLogin}
             onPasswordChange={setNewPassword}

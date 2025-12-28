@@ -8,8 +8,8 @@ function generatePassword(len = 5) {
 }
 
 let initialTeams = [
-    {id: 1, name: "Red team", login: "red", password: generatePassword() },
-    {id: 2, name: "Yellow team", login: "yellow", password: generatePassword() },
+    {id: 1, name: "Red team", login: "red", password: generatePassword(), members: []},
+    {id: 2, name: "Yellow team", login: "yellow", password: generatePassword(), members: []},
 ]
 
 function TeamsPanel({gameId}) {
@@ -22,12 +22,14 @@ function TeamsPanel({gameId}) {
     let [newName, setNewName] = useState("");
     let [newLogin, setNewLogin] = useState("");
     let [newPassword, setNewPassword] = useState("");
+    let [newMembers, setNewMembers] = useState([]);
     let [error, setError] = useState("");
 
     function cleanUpForm() {
         setNewName("");
         setNewLogin("");
         setNewPassword("");
+        setNewMembers([]);
         setError("");
     }
 
@@ -60,6 +62,7 @@ function TeamsPanel({gameId}) {
         setNewName(t.name);
         setNewLogin(t.login);
         setNewPassword(t.password);
+        setNewMembers(t.members || []);
         setEditTeam(t);
     }
 
@@ -71,7 +74,7 @@ function TeamsPanel({gameId}) {
         let password = newPassword || generatePassword();
         
         setTeams((s) =>
-            s.map((t) => t.id !== editTeam.id ? t : {...t, name, login, password})
+            s.map((t) => t.id !== editTeam.id ? t : {...t, name, login, password, members: newMembers})
         );
 
         cleanUpForm();
@@ -86,7 +89,7 @@ function TeamsPanel({gameId}) {
         let password = newPassword || generatePassword();
         let newId = teams.length > 0 ? teams[teams.length - 1].id + 1 : 1;
         
-        setTeams((s) => [...s, {id: newId, name, login, password}]);
+        setTeams((s) => [...s, {id: newId, name, login, password, members: newMembers}]);
         cleanUpForm();
         setAddTeam(false);
     }
@@ -131,12 +134,14 @@ function TeamsPanel({gameId}) {
             name={newName}
             login={newLogin}
             password={newPassword}
+            members={newMembers}
             onNameChange={setNewName}
             onLoginChange={setNewLogin}
             onPasswordChange={setNewPassword}
+            onMembersChange={setNewMembers}
             onClose={() => {
-            setAddTeam(false);
-            cleanUpForm();
+                setAddTeam(false);
+                cleanUpForm();
             }}
             onSubmit={submitAdd}
             inputRef={inputRef}
@@ -151,9 +156,11 @@ function TeamsPanel({gameId}) {
                 name={newName}
                 login={newLogin}
                 password={newPassword}
+                members={newMembers}
                 onNameChange={setNewName}
                 onLoginChange={setNewLogin}
                 onPasswordChange={setNewPassword}
+                onMembersChange={setNewMembers}
                 onClose={() => {
                     setEditTeam(null);
                     cleanUpForm();
