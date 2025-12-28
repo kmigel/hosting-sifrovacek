@@ -92,7 +92,7 @@ router.delete("/:id", async(req, res) => {
     let {id} = req.params;
     try {
         let result = await pool.query(
-            "DELETE FROM users WHERE id = $1 AND role = 'team",
+            "DELETE FROM users WHERE id = $1 AND role = 'team'",
             [id]
         );
         
