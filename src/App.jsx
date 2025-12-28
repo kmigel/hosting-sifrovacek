@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import GameDetail from "./pages/GameDetail";
 import AdminPage from './pages/AdminPage';
+import TeamPage from './pages/TeamPage'
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/game/:id" element={<GameDetail />} />
           <Route path="/admin" element={<AdminPage/>} />
+          <Route path="/team" element={<TeamPage/>} />
         </Route>
       </Routes>
     </BrowserRouter>

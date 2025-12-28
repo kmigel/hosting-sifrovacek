@@ -77,9 +77,12 @@ function Dashboard() {
     <div className='page-wrapper'>
       <section className='header'>
         <h1>Welcome, User!</h1>
-        <div className='btn-container'>
+        <div className='actions' style={{flexWrap: "wrap", justifyContent: "flex-start"}}>
           <button onClick={() => navigate("/admin")}>
             Manage Admins
+          </button>
+          <button onClick={() => navigate("/team")}>
+            Manage Teams
           </button>
           <button className="logout-btn" onClick={() => logout()}>
               Log out
