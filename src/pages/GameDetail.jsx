@@ -160,12 +160,13 @@ function GameDetail() {
           onSubmit={submitAdd}
           inputRef={inputRef}
           error={error}
+          editing={false}
         />
       )}
 
       {editTeam && (
         <UserForm
-          formTitle="Edit Team"
+          formTitle={`Edit ${editTeam.name}`}
           name={newName}
           login={newLogin}
           password={newPassword}
@@ -179,6 +180,7 @@ function GameDetail() {
           onSubmit={submitEdit}
           inputRef={inputRef}
           error={error}
+          editing={true}
         />
       )}
 

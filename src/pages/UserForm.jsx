@@ -13,7 +13,8 @@ function UserForm({
     onClose,
     onSubmit,
     inputRef,
-    error
+    error,
+    editing
 }) {
     return (
         <div className="window-backdrop" onClick={onClose}>
@@ -27,17 +28,24 @@ function UserForm({
           >
             <h3>{formTitle}</h3>
 
-            <input
+            {editing && (
+              <p className="empty">Leave field empty to keep the current one</p>
+            )}
+
+            {!editing && 
+              <input
               ref={inputRef}
+                placeholder="Login"
+                value={login}
+                onChange={(e) => onLoginChange(e.target.value)}
+              />
+            }
+
+            <input
+              ref={editing ? inputRef : null}
               placeholder="Name"
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
-            />
-
-            <input
-              placeholder="Login (optional)"
-              value={login}
-              onChange={(e) => onLoginChange(e.target.value)}
             />
 
             <div className="row">
@@ -60,7 +68,7 @@ function UserForm({
                 Cancel
               </button>
               <button type="submit" className="submit-btn">
-                {formTitle}
+                {editing ? "Edit" : formTitle}
               </button>
             </div>
 
