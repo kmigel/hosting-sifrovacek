@@ -1,4 +1,8 @@
-function TeamForm({
+function generatePassword(len = 5) {
+  return Math.random().toString(36).slice(-len);
+}
+
+function UserForm({
     formTitle,
     name,
     login,
@@ -6,10 +10,10 @@ function TeamForm({
     onNameChange,
     onLoginChange,
     onPasswordChange,
-    onGeneratePassword,
     onClose,
     onSubmit,
-    inputRef
+    inputRef,
+    error
 }) {
     return (
         <div className="window-backdrop" onClick={onClose}>
@@ -25,13 +29,13 @@ function TeamForm({
 
             <input
               ref={inputRef}
-              placeholder="Team name"
+              placeholder="Name"
               value={name}
               onChange={(e) => onNameChange(e.target.value)}
             />
 
             <input
-              placeholder="Team login (optional)"
+              placeholder="Login (optional)"
               value={login}
               onChange={(e) => onLoginChange(e.target.value)}
             />
@@ -44,7 +48,7 @@ function TeamForm({
               />
               <button
                 type="button"
-                onClick={onGeneratePassword}
+                onClick={() => onPasswordChange(generatePassword())}
                 className="gen-btn"
               >
                 Generate
@@ -59,9 +63,11 @@ function TeamForm({
                 {formTitle}
               </button>
             </div>
+
+            {error != "" && <p className="error">{error}</p>}
           </form>
         </div>
     );
 }
 
-export default TeamForm;
+export default UserForm;

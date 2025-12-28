@@ -4,7 +4,7 @@ import './GameDetail.scss'
 
 import MainSidebar from "./game_detail_components/MainSidebar"
 import TeamsPanel from './game_detail_components/TeamsPanel';
-import TeamForm from './game_detail_components/TeamForm';
+import UserForm from './UserForm';
 import DeleteTeamConfirm from './game_detail_components/DeleteTeamConfirm';
 
 function generatePassword(len = 5) {
@@ -31,7 +31,7 @@ function GameDetail() {
   let [newName, setNewName] = useState("");
   let [newLogin, setNewLogin] = useState("");
   let [newPassword, setNewPassword] = useState("");
-
+  let [error, setError] = useState("");
 
   function cleanUpForm() {
     setNewName("");
@@ -143,7 +143,7 @@ function GameDetail() {
       </div>
 
       {addTeam && (
-        <TeamForm
+        <UserForm
           formTitle="Add Team"
           name={newName}
           login={newLogin}
@@ -151,18 +151,18 @@ function GameDetail() {
           onNameChange={setNewName}
           onLoginChange={setNewLogin}
           onPasswordChange={setNewPassword}
-          onGeneratePassword={() => setNewPassword(generatePassword())}
           onClose={() => {
             setAddTeam(false);
             cleanUpForm();
           }}
           onSubmit={submitAdd}
           inputRef={inputRef}
+          error={error}
         />
       )}
 
       {editTeam && (
-        <TeamForm
+        <UserForm
           formTitle="Edit Team"
           name={newName}
           login={newLogin}
@@ -170,13 +170,13 @@ function GameDetail() {
           onNameChange={setNewName}
           onLoginChange={setNewLogin}
           onPasswordChange={setNewPassword}
-          onGeneratePassword={() => setNewPassword(generatePassword())}
           onClose={() => {
             setEditTeam(null);
             cleanUpForm();
           }}
           onSubmit={submitEdit}
           inputRef={inputRef}
+          error={error}
         />
       )}
 
