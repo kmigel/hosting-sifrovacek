@@ -1,9 +1,9 @@
-const express = require("express");
-const pool = require("../db");
-const bcrypt = require("bcrypt");
+import express from "express";
+import pool from "../db.js";
+import bcrypt from "bcrypt";
 
-const verifyToken = require("../middleware/verifyToken")
-const requireAdmin = require("../middleware/requireAdmin")
+import verifyToken from "../middleware/verifyToken.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = express.Router();
 router.use(verifyToken);
@@ -107,4 +107,4 @@ router.delete("/:id", async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

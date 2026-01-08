@@ -1,8 +1,7 @@
-require("dotenv").config();
-const express = require("express");
-const pool = require("../db");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+import express from "express";
+import pool from "../db.js";
+import bcrypt from "bcrypt";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 
@@ -40,4 +39,4 @@ router.post("/login", async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;

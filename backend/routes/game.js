@@ -1,8 +1,8 @@
-const express = require("express");
-const pool = require("../db")
+import express from "express";
+import pool from "../db.js";
 
-const verifyToken = require("../middleware/verifyToken")
-const requireAdmin = require("../middleware/requireAdmin")
+import verifyToken from "../middleware/verifyToken.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = express.Router();
 router.use(verifyToken);
@@ -206,4 +206,4 @@ router.delete("/:gameId/teams/:teamId", requireAdmin, async(req, res) => {
     }
 });
 
-module.exports = router;
+export default router;
