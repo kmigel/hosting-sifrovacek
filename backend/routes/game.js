@@ -7,6 +7,30 @@ import requireAdmin from "../middleware/requireAdmin.js";
 const router = express.Router();
 router.use(verifyToken);
 
+// Get all games with this team
+
+router.get("/my", async(req, res) => {
+    let teamId = req.user.id;
+    if(req.user.role !== "team") {
+        return res.status(403).json({error: "Forbidden"});
+    }
+    try {
+        let result = await pool.query(
+            `SELECT g.id, g.title FROM game_teams gt
+            JOIN games g ON g.id = gt.game_id
+            WHERE gt.team_id = $1
+            ORDER BY g.id`,
+            [teamId]
+        );
+        return res.status(200).json(result.rows);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+// CRUD endpoints
+
 router.post("/", requireAdmin, async(req, res) => {
     let {title} = req.body;
     if(!title) {
@@ -106,7 +130,7 @@ router.delete("/:id", requireAdmin, async(req, res) => {
 
 // Game-Team endpoints
 
-router.get("/:gameId/teams", async(req, res) => {
+router.get("/:gameId/teams", requireAdmin, async(req, res) => {
     let {gameId} = req.params;
     try {
         let check = await pool.query(
