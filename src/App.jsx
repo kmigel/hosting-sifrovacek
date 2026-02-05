@@ -15,9 +15,13 @@ function App() {
         
         <Route element={<RequireAuth />}>
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/game/:id" element={<GameDetail />} />
-          <Route path="/admin" element={<AdminPage/>} />
-          <Route path="/team" element={<TeamPage/>} />
+
+          <Route element={<RequireAuth roles={["admin"]}/>}>
+            <Route path="/game/:id" element={<GameDetail />} />
+            <Route path="/admin" element={<AdminPage/>} />
+            <Route path="/team" element={<TeamPage/>} />
+          </Route>
+
         </Route>
       </Routes>
     </BrowserRouter>
