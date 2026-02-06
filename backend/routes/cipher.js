@@ -20,6 +20,7 @@ router.post("/:gameId", requireAdmin, uploadCipher.single("pdf"), async(req, res
         return res.status(400).json({error: "File is required"});
     }
 
+    let newPath;
     try {
         let check = await pool.query(
             "SELECT * FROM games WHERE id = $1",
@@ -35,7 +36,7 @@ router.post("/:gameId", requireAdmin, uploadCipher.single("pdf"), async(req, res
         }
 
         let oldPath = req.file.path;
-        let newPath = path.join(gameDir, req.file.filename);
+        newPath = path.join(gameDir, req.file.filename);
         fs.renameSync(oldPath, newPath);
 
         let posRes = await pool.query(
@@ -57,6 +58,55 @@ router.post("/:gameId", requireAdmin, uploadCipher.single("pdf"), async(req, res
         if(req.file && fs.existsSync(newPath)) {
             fs.unlinkSync(newPath);
         }
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.get("/game/:gameId", requireAdmin, async(req, res) => {
+    let {gameId} = req.params;
+    try {
+        let check = await pool.query(
+            "SELECT * FROM games WHERE id = $1",
+            [gameId]
+        );
+        if(check.rowCount == 0) {
+            return res.status(404).json({error: "Game not found"});
+        }
+        
+        let result = await pool.query(
+            `SELECT id, name, position FROM ciphers
+            WHERE game_id = $1
+            ORDER BY position`,
+            [gameId]
+        );
+        return res.status(200).json(result.rows);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.get("/:id/pdf", requireAdmin, async(req, res) => {
+    let {id} = req.params;
+    try {
+        let result = await pool.query(
+            "SELECT * FROM ciphers WHERE id = $1",
+            [id]
+        );
+        if(result.rowCount == 0) {
+            return res.status(404).json({error: "Cipher not found"});
+        }
+        
+        let {path: relPath, game_id} = result.rows[0];
+        let filePath = path.join(process.cwd(), relPath);
+        if(!fs.existsSync(filePath)) {
+            return res.status(404).json({error: "File not found"});
+        }
+
+        res.setHeader("Content-Type", "application/pdf");
+        return res.status(200).sendFile(filePath);
+    } catch(err) {
+        console.error(err);
         return res.status(500).json({error: "Database error"});
     }
 });
