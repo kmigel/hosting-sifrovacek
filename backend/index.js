@@ -6,6 +6,7 @@ import authRoutes from "./routes/auth.js";
 import adminRoutes from "./routes/admin.js";
 import gameRoutes from "./routes/game.js";
 import teamRoutes from "./routes/team.js";
+import cipherRoutes from "./routes/cipher.js";
 
 const app = express();
 app.use(cors());
@@ -15,5 +16,6 @@ app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/game", gameRoutes);
 app.use("/team", teamRoutes);
+app.use("/cipher", cipherRoutes);
 
 app.listen(3001, () => console.log("Server listening on 3001"));
