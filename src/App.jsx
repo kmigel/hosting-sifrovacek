@@ -21,7 +21,7 @@ function App() {
             <Route path="/admin" element={<AdminPage/>} />
             <Route path="/team" element={<TeamPage/>} />
           </Route>
-
+          
         </Route>
       </Routes>
     </BrowserRouter>

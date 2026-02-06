@@ -1,10 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react'
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useOutletContext } from 'react-router-dom';
 import './Dashboard.scss'
 import api from '../services/api'
 import GameForm from '../components/GameForm';
 
 function Dashboard() {
+  const {user} = useOutletContext();
   const navigate = useNavigate();
   let inputRef = useRef(null);
   let[games, setGames] = useState([]);
@@ -28,13 +29,24 @@ function Dashboard() {
     setError("");
   }
 
-  async function getGames() {
-    try {
-        let res = await api.get('/game');
+  async function getGames() {    
+    if(user.role == "admin") {
+      try {
+          let res = await api.get('/game');
+          let data = res.data;
+          setGames(data);
+      } catch(err) {
+          console.error("Failed to get games:", err);
+      }
+    }
+    else {
+      try {
+        let res = await api.get(`/game/my`);
         let data = res.data;
         setGames(data);
-    } catch(err) {
-        console.error("Failed to get games:", err);
+      } catch(err) {
+          console.error("Failed to get games:", err);
+      }
     }
   }
 
@@ -76,14 +88,18 @@ function Dashboard() {
   return (
     <div className='page-wrapper'>
       <section className='header'>
-        <h1>Welcome, User!</h1>
+        <h1>Welcome, {user.name}!</h1>
         <div className='actions' style={{flexWrap: "wrap", justifyContent: "flex-start"}}>
-          <button onClick={() => navigate("/admin")}>
-            Manage Admins
-          </button>
-          <button onClick={() => navigate("/team")}>
-            Manage Teams
-          </button>
+          {user.role == "admin" && (
+            <button onClick={() => navigate("/admin")}>
+              Manage Admins
+            </button>
+          )}
+          {user.role == "admin" && (
+            <button onClick={() => navigate("/team")}>
+              Manage Teams
+            </button>
+          )}
           <button className="logout-btn" onClick={() => logout()}>
               Log out
           </button>
@@ -93,9 +109,11 @@ function Dashboard() {
       <section className='games'>
         <div className='games-header'>
           <h2>My games</h2>
-          <button className="add-btn" onClick={() => setAddGame(true)}>
-            + Add Game
-          </button>
+          {user.role == "admin" && (
+            <button className="add-btn" onClick={() => setAddGame(true)}>
+              + Add Game
+            </button>
+          )}
         </div>
         {games.length ? (
           <ul className='games-list'>
