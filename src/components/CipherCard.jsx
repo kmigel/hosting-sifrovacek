@@ -28,8 +28,7 @@ function CipherCard({
             </div>
 
             <div className="actions">
-                
-                <button onClick={() => onPreview(cipher.id)}>
+                <button onClick={() => onPreview()}>
                     Preview PDF
                 </button>
             </div>

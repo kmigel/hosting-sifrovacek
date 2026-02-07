@@ -103,12 +103,25 @@ function CiphersPanel({gameId}) {
         }
     }
 
+    async function previewPdf(id) {
+        try {
+            let res = await api.get(`/cipher/${id}/pdf`, {responseType: "blob"});
+
+            let blob = new Blob([res.data], {type: "application/pdf"});
+            let url = window.URL.createObjectURL(blob);
+            window.open(url, "_blank");
+        } catch(err) {
+            console.error("Failed to preview PDF", err);
+            setError("Failed to open PDF");
+        }
+    }
+
     return (
         <section className='panel-teams'>
             <div className='panel-header'>
                 <h2>Ciphers</h2>
                 <div className='panel-actions'>
-                    <button className='add-btn' onClick={() => setAddCipher(true)}>
+                    <button className='add-btn' onClick={() => {setError(""); setAddCipher(true)}}>
                         Add Cipher
                     </button>
                 </div>
@@ -125,6 +138,7 @@ function CiphersPanel({gameId}) {
                         solution={solutions[cipher.id]}
                         showSolution={!!visible[cipher.id]}
                         onToggleSolution={toggleSolution}
+                        onPreview={() => previewPdf(cipher.id)}
                         />
                     )}
                 </div>
@@ -147,7 +161,7 @@ function CiphersPanel({gameId}) {
                 />
             )}
 
-            {error && <p className="error">{error}</p>}
+            {(error != "" && !addCipher) && <p className="error">{error}</p>}
         </section>
     );
 }
