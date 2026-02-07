@@ -167,4 +167,74 @@ router.put("/:gameId/reorder", requireAdmin, async(req, res) => {
     }
 });
 
+router.delete("/:id", requireAdmin, async(req, res) => {
+    let {id} = req.params;
+    let client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        let result = await pool.query(
+            "SELECT game_id, position FROM ciphers WHERE id = $1",
+            [id]
+        );
+        if(result.rowCount == 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({error: "Cipher not found"});
+        }
+
+        await client.query("DELETE FROM ciphers WHERE id = $1", [id]);
+        
+        let {game_id, position} = result.rows[0];
+        await client.query(
+            `UPDATE ciphers
+            SET position = position - 1
+            WHERE game_id = $1 AND position >= $2`,
+            [game_id, position]
+        );
+        
+        await client.query("COMMIT");
+        return res.status(204).json({message: "Cipher deleted"});
+    } catch(err) {
+        await client.query("ROLLBACK");
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    } finally {
+        client.release();
+    }
+});
+
+router.patch("/:id", requireAdmin, uploadSingle("pdf"), async (req, res) => {
+    let {id} = req.params;
+    let {name, solution} = req.body;
+    try {
+        let prev = await pool.query(
+            "SELECT * FROM ciphers WHERE id = $1",
+            [id]
+        );
+        if(prev.rowCount === 0) {
+            return res.status(404).json({error: "Cipher not found"});
+        }
+
+        let oldPath = prev.rows[0].path;
+        let newPath = oldPath;
+        if(req.file) {
+            let gameDir = path.dirname(oldPath);
+            newPath = path.join(gameDir, req.file.filename);
+            fs.renameSync(req.file.path, newPath);
+            if(fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
+        }
+
+        let result = await pool.query(
+            `UPDATE ciphers SET name = COALESCE($1, name),
+            solution = COALESCE($2, solution), path = $3
+            WHERE id = $4 RETURNING *`,
+            [name, solution, newPath, id]
+        );
+
+        return res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
 export default router;

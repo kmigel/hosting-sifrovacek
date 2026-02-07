@@ -5,6 +5,7 @@ import {restrictToParentElement} from "@dnd-kit/modifiers";
 import api from '../services/api';
 import CipherCard from './CipherCard';
 import CipherForm from './CipherForm';
+import DeleteConfirm from './DeleteConfirm';
 
 function CiphersPanel({gameId}) {
     let inputRef = useRef(null);
@@ -106,6 +107,39 @@ function CiphersPanel({gameId}) {
         }
     }
 
+    async function deleteCipher(id) {
+        try {
+            await api.delete(`/cipher/${id}`);
+            getCiphers();
+            cleanUp();
+        } catch(err) {
+            console.log("Failed to delete cipher:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
+    async function updateCipher(id) {
+        try {
+            let formData = new FormData();
+            if(name) formData.append("name", name);
+            if(solution) formData.append("solution", solution);
+            if(pdf) formData.append("pdf", pdf);
+
+            let res = await api.patch(`/cipher/${id}`, formData, {
+                headers: {"Content-Type": "multipart/form-data"}
+            });
+            
+            setSolutions(s => ({ ...s, [id]: res.data.solution }));
+            setVisible(s => ({ ...s, [id]: false }))
+
+            await getCiphers();
+            cleanUp();
+        } catch(err) {
+            console.log("Failed to update cipher:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
     async function previewPdf(id) {
         try {
             let res = await api.get(`/cipher/${id}/pdf`, {responseType: "blob"});
@@ -190,6 +224,8 @@ function CiphersPanel({gameId}) {
                                 showSolution={!!visible[cipher.id]}
                                 onToggleSolution={toggleSolution}
                                 onPreview={() => previewPdf(cipher.id)}
+                                onDelete={() => setDeletedCipher(cipher)}
+                                onEdit={() => setEditCipher(cipher)}
                                 />
                             ))}
                         </div>
@@ -214,7 +250,33 @@ function CiphersPanel({gameId}) {
                 />
             )}
 
-            {(error != "" && !addCipher) && <p className="error">{error}</p>}
+            {editCipher && (
+                <CipherForm
+                formTitle={`Edit ${editCipher.name}`}
+                name={name}
+                setName={setName}
+                solution={solution}
+                setSolution={setSolution}
+                pdf={pdf}
+                setPdf={setPdf}
+                onClose={cleanUp}
+                onSubmit={() => updateCipher(editCipher.id)}
+                inputRef={inputRef}
+                error={error}
+                editing={true}
+            />
+            )}
+
+            {deletedCipher && (
+                <DeleteConfirm
+                    name={deletedCipher.name}
+                    onCancel={() => cleanUp()}
+                    onConfirm={() => deleteCipher(deletedCipher.id)}
+                    error={error}
+                />
+            )}
+
+            {(error != "" && !addCipher && !deletedCipher && !editCipher) && <p className="error">{error}</p>}
         </section>
     );
 }
