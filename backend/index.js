@@ -7,6 +7,8 @@ import adminRoutes from "./routes/admin.js";
 import gameRoutes from "./routes/game.js";
 import teamRoutes from "./routes/team.js";
 import cipherRoutes from "./routes/cipher.js";
+import gameTeamRoutes from "./routes/game_team.js";
+import inGameRoutes from "./routes/inGame.js";
 
 const app = express();
 app.use(cors());
@@ -15,6 +17,8 @@ app.use(express.json());
 app.use("/auth", authRoutes);
 app.use("/admin", adminRoutes);
 app.use("/game", gameRoutes);
+app.use("/game/:gameId/teams", gameTeamRoutes);
+app.use("/game/:gameId/team/:teamId", inGameRoutes);
 app.use("/team", teamRoutes);
 app.use("/cipher", cipherRoutes);
 
