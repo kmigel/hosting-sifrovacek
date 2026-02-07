@@ -34,14 +34,16 @@ function TeamCard({team, onEdit, onDelete}) {
                     </div>
                 )}
             </div>
-
+            
             <div className='actions'>
-            <button className='edit-btn' onClick={() => onEdit(team)}>
-                Edit
-            </button>
-            <button className='delete-btn' onClick={() => onDelete(team)}>
-                Delete
-            </button>
+                {onEdit && (
+                    <button className='edit-btn' onClick={() => onEdit(team)}>
+                        Edit
+                    </button>
+                )}
+                <button className='delete-btn' onClick={() => onDelete(team)}>
+                    {onEdit ? "Delete" : "Remove"}
+                </button>
             </div>
         </div>
     );
