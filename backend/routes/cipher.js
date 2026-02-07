@@ -111,4 +111,21 @@ router.get("/:id/pdf", requireAdmin, async(req, res) => {
     }
 });
 
+router.get("/:id/solution", requireAdmin, async(req, res) => {
+    let {id} = req.params;
+    try {
+        let result = await pool.query(
+            "SELECT solution FROM ciphers WHERE id = $1",
+            [id]
+        );
+        if(result.rowCount == 0) {
+            return res.status(404).json({error: "Cipher not found"});
+        }
+        res.json({solution: result.rows[0].solution});
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
 export default router;

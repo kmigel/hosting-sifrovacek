@@ -7,10 +7,10 @@ function MainSidebar({section, onChange}) {
             Teams
           </button>
           
-          <button className={section === "pdfs" ? "active" : ""}
-          onClick={() => onChange("pdfs")}
+          <button className={section === "ciphers" ? "active" : ""}
+          onClick={() => onChange("ciphers")}
           >
-            PDFs
+            Ciphers
           </button>
 
           <button className={section === "settings" ? "active" : ""}

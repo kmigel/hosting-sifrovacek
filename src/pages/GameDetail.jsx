@@ -7,6 +7,7 @@ import GameForm from '../components/GameForm';
 import DeleteConfirm from '../components/DeleteConfirm';
 import MainSidebar from "../components/MainSidebar"
 import TeamsPanel from '../components/TeamsPanel';
+import CiphersPanel from '../components/CiphersPanel';
 
 function GameDetail() {
   let { id } = useParams();
@@ -111,10 +112,10 @@ function GameDetail() {
             />
           )}
 
-          {section === "pdfs" && (
-            <section>
-              PDFs section
-            </section>
+          {section === "ciphers" && (
+            <CiphersPanel
+              gameId={id}
+            />
           )}
 
           {section === "settings" && (

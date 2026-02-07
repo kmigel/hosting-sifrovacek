@@ -6,7 +6,7 @@ import { fileURLToPath } from "url";
 let filename = fileURLToPath(import.meta.url);
 let dirname = path.dirname(filename);
 
-let DIR = path.join(dirname, "..", "..", "uploads", "tmp");
+let DIR = path.join(dirname, "..", "uploads", "tmp");
 
 if(!fs.existsSync(DIR)) {
     fs.mkdirSync(DIR, {recursive: true});
