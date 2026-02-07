@@ -1,3 +1,5 @@
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 function CipherCard({
     cipher,
     solution,
@@ -7,8 +9,30 @@ function CipherCard({
     onDelete,
     onEdit
 }) {
+    let {
+        setNodeRef,
+        attributes,
+        listeners,
+        transform,
+        transition,
+        isDragging
+    } = useSortable({id: cipher.id});
+
+    let style = {
+        transform: CSS.Transform.toString(transform),
+        transition,
+        opacity: isDragging ? 0.6 : 1,
+        cursor: "grab"
+    };
+
     return (
-        <div className="card">
+        <div
+            className="card"
+            ref={setNodeRef}
+            style={style}
+            {...attributes}
+            {...listeners}
+        >
             <h3 className="name">
                 {cipher.position}. {cipher.name}
             </h3>
@@ -16,7 +40,7 @@ function CipherCard({
             <div className="data">
                 <div className="row">
                     <span className="label">Solution:</span>
-                    <button onClick={() => onToggleSolution(cipher.id)}>
+                    <button onClick={(e) => {e.stopPropagation(); onToggleSolution(cipher.id)}}>
                         {showSolution ? "Hide" : "Show"}
                     </button>
                 </div>
@@ -28,15 +52,15 @@ function CipherCard({
             </div>
 
             <div className="actions">
-                <button onClick={() => onPreview()}>
+                <button onClick={(e) => {e.stopPropagation(); onPreview()}}>
                     Preview PDF
                 </button>
             </div>
             <div className="actions">
-                <button className="edit-btn" onClick={() => onEdit(cipher)}>
+                <button className="edit-btn" onClick={(e) => {e.stopPropagation(); onEdit(cipher)}}>
                     Edit
                 </button>
-                <button className="delete-btn" onClick={() => onDelete(cipher.id)}>
+                <button className="delete-btn" onClick={(e) => {e.stopPropagation(); onDelete(cipher.id)}}>
                     Delete
                 </button>
             </div>

@@ -1,4 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
+import {DndContext, closestCenter, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
+import {SortableContext, rectSortingStrategy, arrayMove} from "@dnd-kit/sortable";
+import {restrictToParentElement} from "@dnd-kit/modifiers";
 import api from '../services/api';
 import CipherCard from './CipherCard';
 import CipherForm from './CipherForm';
@@ -116,10 +119,47 @@ function CiphersPanel({gameId}) {
         }
     }
 
+    let sensors = useSensors(
+        useSensor(PointerSensor, {
+            activationConstraint: {
+                distance: 6
+            }
+        })
+    );
+
+    async function handleDragEnd(result) {
+        let {active, over} = result;
+        if(!over || active.id === over.id) return;
+
+        let oldIndex = ciphers.findIndex(c => c.id === active.id);
+        let newIndex = ciphers.findIndex(c => c.id === over.id);
+        let reordered = arrayMove(ciphers, oldIndex, newIndex);
+        
+        setCiphers(
+            reordered.map((c, index) => ({
+                ...c,
+                position: index + 1
+            }))
+        );
+
+        try {
+            await api.put(`/cipher/${gameId}/reorder`, {
+                order: reordered.map((c, index) => ({
+                    id: c.id,
+                    position: index + 1
+                }))
+            });
+        } catch(err) {
+            console.error("Failed to reorder:", err);
+            getCiphers();
+        }
+    }
+
     return (
         <section className='panel-teams'>
             <div className='panel-header'>
                 <h2>Ciphers</h2>
+                <span className='empty'>Drag and drop to reorder ciphers</span>
                 <div className='panel-actions'>
                     <button className='add-btn' onClick={() => {setError(""); setAddCipher(true)}}>
                         Add Cipher
@@ -130,18 +170,31 @@ function CiphersPanel({gameId}) {
             {ciphers.length === 0 ? (
                 <p className='empty'>No ciphers added to this game yet.</p>
             ) : (
-                <div className='card-grid'>
-                    {ciphers.map((cipher) => 
-                        <CipherCard
-                        key={cipher.id}
-                        cipher={cipher}
-                        solution={solutions[cipher.id]}
-                        showSolution={!!visible[cipher.id]}
-                        onToggleSolution={toggleSolution}
-                        onPreview={() => previewPdf(cipher.id)}
-                        />
-                    )}
-                </div>
+                <DndContext
+                    sensors={sensors}
+                    collisionDetection={closestCenter}
+                    onDragEnd={handleDragEnd}
+                    measuring={{ droppable: { strategy: "always" } }}
+                    modifiers={[restrictToParentElement]}
+                >
+                    <SortableContext
+                        items={ciphers.map(c => c.id)}
+                        strategy={rectSortingStrategy}
+                    >
+                        <div className='card-grid'>
+                            {ciphers.map(cipher => (
+                                <CipherCard
+                                key={cipher.id}
+                                cipher={cipher}
+                                solution={solutions[cipher.id]}
+                                showSolution={!!visible[cipher.id]}
+                                onToggleSolution={toggleSolution}
+                                onPreview={() => previewPdf(cipher.id)}
+                                />
+                            ))}
+                        </div>
+                    </SortableContext>
+                </DndContext>
             )}
 
             {addCipher && (
