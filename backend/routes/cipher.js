@@ -10,7 +10,18 @@ import uploadCipher from "../middleware/uploadCipher.js";
 const router = express.Router();
 router.use(verifyToken);
 
-router.post("/:gameId", requireAdmin, uploadCipher.single("pdf"), async(req, res) => {
+function uploadSingle(field) {
+    return (req, res, next) => {
+        uploadCipher.single(field)(req, res, err => {
+            if (err) {
+                return res.status(400).json({error: err.message});
+            }
+            next();
+        });
+    };
+}
+
+router.post("/:gameId", requireAdmin, uploadSingle("pdf"), async(req, res) => {
     let {gameId} = req.params;
     let {name, solution} = req.body;
     if(!name || !solution) {

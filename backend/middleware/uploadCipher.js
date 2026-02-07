@@ -25,7 +25,7 @@ let storage = multer.diskStorage({
 
 function fileFilter(req, file, cb) {
     if(file.mimetype !== "application/pdf") {
-        return cb(new Error("Only PDF format is allowed"), false);
+        return cb(new Error("Only PDF format is allowed"));
     }
     cb(null, true);
 }
