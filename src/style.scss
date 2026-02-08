@@ -52,6 +52,10 @@ button {
             background: #555;
         }
     }
+
+    &:disabled {
+        cursor: not-allowed;
+    }
 }
 
 .header {

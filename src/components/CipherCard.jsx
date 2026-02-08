@@ -7,7 +7,8 @@ function CipherCard({
     onToggleSolution,
     onPreview,
     onDelete,
-    onEdit
+    onEdit,
+    state
 }) {
     let {
         setNodeRef,
@@ -57,10 +58,10 @@ function CipherCard({
                 </button>
             </div>
             <div className="actions">
-                <button className="edit-btn" onClick={(e) => {e.stopPropagation(); onEdit(cipher)}}>
+                <button disabled={state !== "pending"} className="edit-btn" onClick={(e) => {e.stopPropagation(); onEdit(cipher)}}>
                     Edit
                 </button>
-                <button className="delete-btn" onClick={(e) => {e.stopPropagation(); onDelete(cipher.id)}}>
+                <button disabled={state !== "pending"} className="delete-btn" onClick={(e) => {e.stopPropagation(); onDelete(cipher.id)}}>
                     Delete
                 </button>
             </div>

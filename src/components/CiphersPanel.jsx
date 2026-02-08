@@ -9,6 +9,7 @@ import DeleteConfirm from './DeleteConfirm';
 
 function CiphersPanel({gameId}) {
     let inputRef = useRef(null);
+    let [state, setState] = useState(null);
     let [ciphers, setCiphers] = useState([]);
     let [solutions, setSolutions] = useState({});
     let [visible, setVisible] = useState({});
@@ -25,6 +26,7 @@ function CiphersPanel({gameId}) {
 
     useEffect(() => {
         getCiphers();
+        getGameState();
     }, [gameId]);
 
     useEffect(() => {
@@ -57,6 +59,15 @@ function CiphersPanel({gameId}) {
             window.removeEventListener("keydown", handleKeyDown);
         }
     }, [addCipher, editCipher, deletedCipher]);
+
+    async function getGameState() {
+        try {
+            let res = await api.get(`/game/${gameId}`);
+            setState(res.data.state);
+        } catch(err) {
+            console.error("Failed to get game:", err);
+        }
+    }
 
     async function getCiphers() {
         try {
@@ -162,6 +173,7 @@ function CiphersPanel({gameId}) {
     );
 
     async function handleDragEnd(result) {
+        if(state !== "pending") return;
         let {active, over} = result;
         if(!over || active.id === over.id) return;
 
@@ -195,7 +207,7 @@ function CiphersPanel({gameId}) {
                 <h2>Ciphers</h2>
                 <span className='empty'>Drag and drop to reorder ciphers</span>
                 <div className='panel-actions'>
-                    <button className='add-btn' onClick={() => {setError(""); setAddCipher(true)}}>
+                    <button disabled={state !== "pending"} className='add-btn' onClick={() => {setError(""); setAddCipher(true)}}>
                         Add Cipher
                     </button>
                 </div>
@@ -205,6 +217,7 @@ function CiphersPanel({gameId}) {
                 <p className='empty'>No ciphers added to this game yet.</p>
             ) : (
                 <DndContext
+                    key={state}
                     sensors={sensors}
                     collisionDetection={closestCenter}
                     onDragEnd={handleDragEnd}
@@ -226,6 +239,7 @@ function CiphersPanel({gameId}) {
                                 onPreview={() => previewPdf(cipher.id)}
                                 onDelete={() => setDeletedCipher(cipher)}
                                 onEdit={() => setEditCipher(cipher)}
+                                state={state}
                                 />
                             ))}
                         </div>

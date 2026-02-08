@@ -15,6 +15,7 @@ function GameDetail() {
   let inputRef = useRef(null);
   let navigate = useNavigate();
   let[game, setGame] = useState(null);
+  let[state, setState] = useState(null);
   let[title, setTitle] = useState("Loading...");
   let [section, setSection] = useState("teams");
   let[error, setError] = useState("");
@@ -26,6 +27,12 @@ function GameDetail() {
   useEffect(() => {
     getGame();
   }, [id]);
+
+  useEffect(() => {
+    if(game !== null) {
+      setState(game.state);
+    }
+  }, [game]);
 
   useEffect(() => {
     if(game != null) {
@@ -126,12 +133,14 @@ function GameDetail() {
           {section === "ciphers" && (
             <CiphersPanel
               gameId={id}
+              state={state}
             />
           )}
 
           {section === "settings" && (
             <SettingsPanel
               gameId={id}
+              state={state}
             />
           )}
         </main>
