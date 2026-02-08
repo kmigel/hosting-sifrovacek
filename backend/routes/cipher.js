@@ -8,6 +8,7 @@ import requireAdmin from "../middleware/requireAdmin.js";
 import uploadCipher from "../middleware/uploadCipher.js";
 import requireGamePending from "../middleware/requireGamePending.js";
 import requireGamePendingCipher from "../middleware/requireGamePendingCipher.js";
+import { error } from "console";
 
 const router = express.Router();
 router.use(verifyToken);
@@ -100,8 +101,9 @@ router.get("/game/:gameId", requireAdmin, async(req, res) => {
     }
 });
 
-router.get("/:id/pdf", requireAdmin, async(req, res) => {
+router.get("/:id/pdf", async(req, res) => {
     let {id} = req.params;
+    let userId = req.user.id;
     try {
         let result = await pool.query(
             "SELECT * FROM ciphers WHERE id = $1",
@@ -110,8 +112,19 @@ router.get("/:id/pdf", requireAdmin, async(req, res) => {
         if(result.rowCount == 0) {
             return res.status(404).json({error: "Cipher not found"});
         }
-        
+
         let {path: relPath, game_id} = result.rows[0];
+        
+        if(req.user.role === "team") {
+            let check = await pool.query(
+                `SELECT current FROM game_teams WHERE game_id = $1 AND team_id = $2`,
+                [game_id, userId]
+            );
+            if(check.rowCount === 0 || check.rows[0].current !== result.rows[0].position) {
+                return res.status(403).json({error: "Cannot view this cipher"});
+            }
+        }
+
         let filePath = path.join(process.cwd(), relPath);
         if(!fs.existsSync(filePath)) {
             return res.status(404).json({error: "File not found"});
@@ -239,6 +252,21 @@ async(req, res) => {
     } catch(err) {
         console.error(err);
         return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.get("/:gameId/total", async(req, res) => {
+    let {gameId} = req.params;
+    try {
+        let result = await pool.query(
+            `SELECT MAX(position) as total
+            FROM ciphers WHERE game_id = $1`,
+            [gameId]
+        );
+        return res.json({total: Number(result.rows[0].total)});
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({error: "Database error"});
     }
 });
 

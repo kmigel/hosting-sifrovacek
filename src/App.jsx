@@ -23,7 +23,7 @@ function App() {
             <Route path="/team" element={<TeamPage/>} />
           </Route>
           <Route element={<RequireAuth roles={["team"]}/>}>
-            <Route path="/play/game/:id" element={<PlayGame/>} />
+            <Route path="/play/game/:gameId" element={<PlayGame/>} />
           </Route>
         </Route>
       </Routes>

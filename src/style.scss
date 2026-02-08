@@ -195,6 +195,20 @@ h2 {
     }
 }
 
+.play-panel {
+    position: relative;
+    width: 100%;
+    flex-direction: column;
+    min-height: 70vh;
+    gap: 2rem;
+    background: none;
+
+    > h3 {
+        font-size: 3rem;
+        border-bottom: 2px solid #ce4a4a;
+    }
+}
+
 .actions {
     display: flex;
     justify-content: flex-end;
@@ -210,6 +224,7 @@ h2 {
     display: flex;
     justify-content: center;
     align-items: center;
+    padding: 0 1rem;
 }
 
 .empty {

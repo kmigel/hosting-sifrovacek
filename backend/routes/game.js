@@ -134,6 +134,12 @@ router.post("/:id/start", requireAdmin, async(req, res) => {
     let {id} = req.params;
     try {
         let result = await pool.query(
+            `SELECT * FROM ciphers WHERE game_id = $1`,
+            [id]
+        );
+        if(result.rowCount === 0) return res.status(400).json({error: "Cannot start a game with no ciphers"});
+
+        result = await pool.query(
             `UPDATE games SET state = 'active'
             WHERE id = $1 AND state = 'pending'
             RETURNING *`,
