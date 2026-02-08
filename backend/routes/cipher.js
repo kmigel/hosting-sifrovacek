@@ -6,6 +6,8 @@ import fs from "fs";
 import verifyToken from "../middleware/verifyToken.js";
 import requireAdmin from "../middleware/requireAdmin.js";
 import uploadCipher from "../middleware/uploadCipher.js";
+import requireGamePending from "../middleware/requireGamePending.js";
+import requireGamePendingCipher from "../middleware/requireGamePendingCipher.js";
 
 const router = express.Router();
 router.use(verifyToken);
@@ -21,7 +23,8 @@ function uploadSingle(field) {
     };
 }
 
-router.post("/:gameId", requireAdmin, uploadSingle("pdf"), async(req, res) => {
+router.post("/:gameId", requireAdmin, requireGamePending, uploadSingle("pdf"),
+async(req, res) => {
     let {gameId} = req.params;
     let {name, solution} = req.body;
     if(!name || !solution) {
@@ -139,7 +142,7 @@ router.get("/:id/solution", requireAdmin, async(req, res) => {
     }
 });
 
-router.put("/:gameId/reorder", requireAdmin, async(req, res) => {
+router.put("/:gameId/reorder", requireAdmin, requireGamePending, async(req, res) => {
     let {gameId} = req.params;
     let {order} = req.body;
 
@@ -167,7 +170,7 @@ router.put("/:gameId/reorder", requireAdmin, async(req, res) => {
     }
 });
 
-router.delete("/:id", requireAdmin, async(req, res) => {
+router.delete("/:id", requireAdmin, requireGamePendingCipher, async(req, res) => {
     let {id} = req.params;
     let client = await pool.connect();
     try {
@@ -184,6 +187,7 @@ router.delete("/:id", requireAdmin, async(req, res) => {
         await client.query("DELETE FROM ciphers WHERE id = $1", [id]);
         
         let {game_id, position} = result.rows[0];
+
         await client.query(
             `UPDATE ciphers
             SET position = position - 1
@@ -202,7 +206,8 @@ router.delete("/:id", requireAdmin, async(req, res) => {
     }
 });
 
-router.patch("/:id", requireAdmin, uploadSingle("pdf"), async (req, res) => {
+router.patch("/:id", requireAdmin, requireGamePendingCipher, uploadSingle("pdf"),
+async(req, res) => {
     let {id} = req.params;
     let {name, solution} = req.body;
     try {

@@ -8,12 +8,14 @@ import DeleteConfirm from '../components/DeleteConfirm';
 import MainSidebar from "../components/MainSidebar"
 import TeamsPanel from '../components/TeamsPanel';
 import CiphersPanel from '../components/CiphersPanel';
+import SettingsPanel from '../components/SettingsPanel';
 
 function GameDetail() {
   let { id } = useParams();
   let inputRef = useRef(null);
   let navigate = useNavigate();
   let[game, setGame] = useState(null);
+  let[title, setTitle] = useState("Loading...");
   let [section, setSection] = useState("teams");
   let[error, setError] = useState("");
 
@@ -24,6 +26,15 @@ function GameDetail() {
   useEffect(() => {
     getGame();
   }, [id]);
+
+  useEffect(() => {
+    if(game != null) {
+      if(game.state === "active") {
+        setTitle(`${game.title} - running`);
+      }
+      else setTitle(game.title);
+    }
+  }, [game]);
 
   useEffect(() => {
       if(editGame && inputRef.current) {
@@ -95,7 +106,7 @@ function GameDetail() {
         <button className='back-btn' onClick={() => navigate("/dashboard")}>
           ← Back
         </button>
-        <h1>{game ? game.title : "Loading..."}</h1>
+        <h1>{title}</h1>
         <div className="actions">
           <button className='edit-btn' onClick={() => setEditGame(true)}>Edit</button>
           <button className='delete-btn' onClick={() => setDeletedGame(true)}>Delete</button>
@@ -119,9 +130,9 @@ function GameDetail() {
           )}
 
           {section === "settings" && (
-            <section>
-              Settings section
-            </section>
+            <SettingsPanel
+              gameId={id}
+            />
           )}
         </main>
       </div>

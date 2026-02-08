@@ -128,4 +128,49 @@ router.delete("/:id", requireAdmin, async(req, res) => {
     }
 });
 
+// Start or end game
+
+router.post("/:id/start", requireAdmin, async(req, res) => {
+    let {id} = req.params;
+    try {
+        let result = await pool.query(
+            `UPDATE games SET state = 'active'
+            WHERE id = $1 AND state = 'pending'
+            RETURNING *`,
+            [id]
+        );
+        if(result.rowCount === 0) {
+            return res.status(409).json({error: "Game cannot be started"});
+        }
+
+        await pool.query(
+            `UPDATE game_teams SET current = 1 WHERE game_id = $1`,
+            [id]
+        );
+        res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({error: "Database error"});
+    }
+});
+
+router.post("/:id/end", requireAdmin, async(req, res) => {
+    let {id} = req.params;
+    try {
+        let result = await pool.query(
+            `UPDATE games SET state = 'finished'
+            WHERE id = $1 AND state = 'active'
+            RETURNING *`,
+            [id]
+        );
+        if(result.rowCount === 0) {
+            return res.status(409).json({error: "Game cannot be ended"});
+        }
+        res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        res.status(500).json({error: "Database error"});
+    }
+});
+
 export default router;

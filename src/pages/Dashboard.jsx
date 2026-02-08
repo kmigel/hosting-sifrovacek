@@ -118,7 +118,16 @@ function Dashboard() {
         {games.length ? (
           <ul className='games-list'>
             {games.map(g => (
-              <li key={g.id} onClick={() => navigate(`/game/${g.id}`)}>
+              <li
+                key={g.id}
+                onClick={() => {
+                  if(user.role == "admin") {
+                    navigate(`/game/${g.id}`)
+                  }
+                  else {
+                    navigate(`/play/game/${g.id}`)
+                  }
+                }}>
                 <div className='scroll-box'>
                   <p className='game-name'>{g.title}</p>
                 </div>

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import GameDetail from "./pages/GameDetail";
 import AdminPage from './pages/AdminPage';
 import TeamPage from './pages/TeamPage'
+import PlayGame from './pages/PlayGame'
 
 function App() {
   return (
@@ -21,7 +22,9 @@ function App() {
             <Route path="/admin" element={<AdminPage/>} />
             <Route path="/team" element={<TeamPage/>} />
           </Route>
-          
+          <Route element={<RequireAuth roles={["team"]}/>}>
+            <Route path="/play/game/:id" element={<PlayGame/>} />
+          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
