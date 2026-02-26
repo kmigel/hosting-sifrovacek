@@ -189,7 +189,7 @@ function CiphersPanel({gameId}) {
         );
 
         try {
-            await api.put(`/cipher/${gameId}/reorder`, {
+            await api.patch(`/game/${gameId}/cipher`, {
                 order: reordered.map((c, index) => ({
                     id: c.id,
                     position: index + 1

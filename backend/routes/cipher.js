@@ -8,7 +8,6 @@ import requireAdmin from "../middleware/requireAdmin.js";
 import uploadCipher from "../middleware/uploadCipher.js";
 import requireGamePending from "../middleware/requireGamePending.js";
 import requireGamePendingCipher from "../middleware/requireGamePendingCipher.js";
-import { error } from "console";
 
 const router = express.Router();
 router.use(verifyToken);
@@ -152,34 +151,6 @@ router.get("/:id/solution", requireAdmin, async(req, res) => {
     } catch(err) {
         console.error(err);
         return res.status(500).json({error: "Database error"});
-    }
-});
-
-router.put("/:gameId/reorder", requireAdmin, requireGamePending, async(req, res) => {
-    let {gameId} = req.params;
-    let {order} = req.body;
-
-    if(!Array.isArray(order)) {
-        return res.status(400).json({error: "Invalid order"});
-    }
-
-    let client = await pool.connect();
-    try {
-        await client.query("BEGIN");
-        for(let item of order) {
-            await client.query(
-                "UPDATE ciphers SET position = $1 WHERE id = $2 AND game_id = $3",
-                [item.position, item.id, gameId]
-            );
-        }
-        await client.query("COMMIT");
-        return res.status(200).json({message: "Order updated"});
-    } catch(err) {
-        await client.query("ROLLBACK");
-        console.error(err);
-        return res.status(500).json({error: "Database error"});
-    } finally {
-        client.release();
     }
 });
 
