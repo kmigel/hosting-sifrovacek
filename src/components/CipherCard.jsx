@@ -58,7 +58,7 @@ function CipherCard({
                 </button>
             </div>
             <div className="actions">
-                <button disabled={state !== "pending"} className="edit-btn" onClick={(e) => {e.stopPropagation(); onEdit(cipher)}}>
+                <button className="edit-btn" onClick={(e) => {e.stopPropagation(); onEdit(cipher)}}>
                     Edit
                 </button>
                 <button disabled={state !== "pending"} className="delete-btn" onClick={(e) => {e.stopPropagation(); onDelete(cipher.id)}}>
