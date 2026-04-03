@@ -108,4 +108,24 @@ router.delete("/:teamId", async(req, res) => {
     }
 });
 
+router.delete("/hints", async(req, res) => {
+    let {gameId, teamId} = req.params;
+    try {
+        await pool.query(
+            `DELETE FROM team_hint_usage
+            WHERE team_id = $1 AND 
+            hint_id IN (
+                SELECT id FROM cipher_hints AS ch
+                JOIN ciphers AS c on c.id = ch.cipher_id
+                WHERE c.game_id = $2
+            )`,
+            [teamId, gameId]
+        );
+        return res.status(204).send();
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
 export default router;

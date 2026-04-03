@@ -241,4 +241,117 @@ router.get("/:gameId/total", async(req, res) => {
     }
 });
 
+router.post("/:cipherId/hints", requireAdmin, async (req, res) => {
+    let {cipherId} = req.params;
+    let {content, cost} = req.body;
+    if(!content) {
+        return res.status(400).json({error: "Content required"});
+    }
+    if(cost != null && cost < 0) {
+        return res.status(400).json({error: "Cost cannot be negative"});
+    }
+
+    try {
+        let result = await pool.query(
+            `SELECT COALESCE(MAX(position), 0) + 1 AS next
+            FROM cipher_hints
+            WHERE cipher_id = $1`,
+            [cipherId]
+        );
+
+        let position = result.rows[0].next;
+
+        result = await pool.query(
+            `INSERT INTO cipher_hints
+            (cipher_id, content, cost, position)
+            VALUES ($1, $2, $3, $4)
+            RETURNING *`,
+            [cipherId, content, cost || 0, position]
+        );
+        return res.status(201).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.get("/:cipherId/hints", requireAdmin, async (req, res) => {
+    let {cipherId} = req.params;
+    try {
+        let result = await pool.query(
+            `SELECT id, content, cost, position
+            FROM cipher_hints
+            WHERE cipher_id = $1
+            ORDER BY position ASC`,
+            [cipherId]
+        );
+        return res.status(200).json(result.rows);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.patch("/hints/:hintId", requireAdmin, async (req, res) => {
+    let {hintId} = req.params;
+    let {content, cost} = req.body;
+
+    if(cost != null && cost < 0) {
+        return res.status(400).json({error: "Cost cannot be negative"});
+    }
+
+    try {
+        let result = await pool.query(
+            `UPDATE cipher_hints
+            SET content = COALESCE($1, content),
+            cost = COALESCE($2, cost)
+            WHERE id = $3
+            RETURNING *`,
+            [content, cost, hintId]
+        );
+        if(result.rowCount === 0) return res.status(404).json({error: "Hint not found"});
+
+        return res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
+router.delete("/hints/:hintId", requireAdmin, async (req, res) => {
+    let {hintId} = req.params;
+    let client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        let result = await client.query(
+            "SELECT cipher_id, position FROM cipher_hints WHERE id = $1",
+            [hintId]
+        );
+        if(result.rowCount == 0) {
+            await client.query("ROLLBACK");
+            return res.status(404).json({error: "Hint not found"});
+        }
+
+        await client.query("DELETE FROM cipher_hints WHERE id = $1", [hintId]);
+        
+        let {cipher_id, position} = result.rows[0];
+
+        await client.query(
+            `UPDATE cipher_hints
+            SET position = position - 1
+            WHERE cipher_id = $1 AND position > $2`,
+            [cipher_id, position]
+        );
+        
+        await client.query("COMMIT");
+        return res.status(204).json({message: "Hint deleted"});
+    } catch(err) {
+        await client.query("ROLLBACK");
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    } finally {
+        client.release();
+    }
+});
+
 export default router;
