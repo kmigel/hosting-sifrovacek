@@ -354,4 +354,33 @@ router.delete("/hints/:hintId", requireAdmin, async (req, res) => {
     }
 });
 
+router.patch("/:cipherId/hints", requireAdmin, async (req, res) => {
+    let {cipherId} = req.params;
+    let {order} = req.body;
+    if(!Array.isArray(order)) {
+        return res.status(400).json({error: "Invalid order"});
+    }
+
+    let client = await pool.connect();
+    try {
+        await client.query("BEGIN");
+        for(let item of order) {
+            await client.query(
+                `UPDATE cipher_hints
+                SET position = $1
+                WHERE id = $2 AND cipher_id = $3`,
+                [item.position, item.id, cipherId]
+            );
+        }
+        await client.query("COMMIT");
+        return res.status(200).json({message: "Hints reordered"});
+    } catch(err) {
+        await client.query("ROLLBACK");
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    } finally {
+        client.release();
+    }
+});
+
 export default router;
