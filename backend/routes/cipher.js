@@ -26,12 +26,16 @@ function uploadSingle(field) {
 router.post("/:gameId", requireAdmin, requireGamePending, uploadSingle("pdf"),
 async(req, res) => {
     let {gameId} = req.params;
-    let {name, solution} = req.body;
+    let {name, solution, points } = req.body;
     if(!name || !solution) {
         return res.status(400).json({error: "Missing fields"});
     }
     if(!req.file) {
         return res.status(400).json({error: "File is required"});
+    }
+    points = Number(points || 1);
+    if(isNaN(points) || points <= 0) {
+        return res.status(400).json({error: "Points must be a positive number"});
     }
 
     let newPath;
@@ -61,15 +65,15 @@ async(req, res) => {
         let nextPos = posRes.rows[0].next;
 
         let result = await pool.query(
-            `INSERT INTO ciphers (game_id, name, solution, path, position)
-            VALUES ($1, $2, $3, $4, $5)
+            `INSERT INTO ciphers (game_id, name, solution, path, position, points)
+            VALUES ($1, $2, $3, $4, $5, $6)
             RETURNING *`,
-            [gameId, name, solution, path.relative(process.cwd(), newPath), nextPos]
+            [gameId, name, solution, path.relative(process.cwd(), newPath), nextPos, points]
         );
         return res.status(201).json(result.rows[0]);
     } catch(err) {
         console.error(err);
-        if(req.file && fs.existsSync(newPath)) {
+        if(req.file && newPath && fs.existsSync(newPath)) {
             fs.unlinkSync(newPath);
         }
         return res.status(500).json({error: "Database error"});
@@ -88,7 +92,7 @@ router.get("/game/:gameId", requireAdmin, async(req, res) => {
         }
         
         let result = await pool.query(
-            `SELECT id, name, position FROM ciphers
+            `SELECT id, name, position, points FROM ciphers
             WHERE game_id = $1
             ORDER BY position ASC`,
             [gameId]
@@ -193,8 +197,32 @@ router.delete("/:id", requireAdmin, requireGamePendingCipher, async(req, res) =>
 router.patch("/:id", requireAdmin, requireGamePendingCipher, uploadSingle("pdf"),
 async(req, res) => {
     let {id} = req.params;
-    let {name, solution} = req.body;
+    let {name, solution, points } = req.body;
+    if(points !== undefined && points !== "") {
+        points = Number(points);
+        if(isNaN(points) || points <= 0) {
+            return res.status(400).json({error: "Points must be a positive number"});
+        }
+    }
+    else points = null;
+
     try {
+        if(points !== null) {
+            let hintsResult = await pool.query(
+                `SELECT COALESCE(SUM(cost), 0) AS total
+                FROM cipher_hints
+                WHERE cipher_id = $1`,
+                [id]
+            );
+            let hints = Number(hintsResult.rows[0].total);
+
+            if(points < hints) {
+                return res.status(400).json({
+                    error: "Points cannot be lower than total hint cost"
+                });
+            }
+        }
+
         let prev = await pool.query(
             "SELECT * FROM ciphers WHERE id = $1",
             [id]
@@ -214,9 +242,10 @@ async(req, res) => {
 
         let result = await pool.query(
             `UPDATE ciphers SET name = COALESCE($1, name),
-            solution = COALESCE($2, solution), path = $3
-            WHERE id = $4 RETURNING *`,
-            [name, solution, newPath, id]
+            solution = COALESCE($2, solution), path = $3,
+            points = COALESCE($4, points)
+            WHERE id = $5 RETURNING *`,
+            [name, solution, path.relative(process.cwd(), newPath), points, id]
         );
 
         return res.status(200).json(result.rows[0]);
@@ -252,6 +281,29 @@ router.post("/:cipherId/hints", requireAdmin, async (req, res) => {
     }
 
     try {
+        // can't go negative
+        let totalResult = await pool.query(
+            `SELECT COALESCE(SUM(cost), 0) AS total
+            FROM cipher_hints
+            WHERE cipher_id = $1`,
+            [cipherId]
+        );
+        let total = Number(totalResult.rows[0].total);
+        
+        let pointsResult = await pool.query(
+            `SELECT points FROM ciphers WHERE id = $1`,
+            [cipherId]
+        );
+        if(pointsResult.rowCount === 0) return res.status(404).json({error: "Cipher not found"});
+        let points = Number(pointsResult.rows[0].points);
+
+        if(total + cost > points) {
+            return res.status(400).json({
+                error: "Total hint cost can't exceed cipher points"
+            });
+        }
+
+
         let result = await pool.query(
             `SELECT COALESCE(MAX(position), 0) + 1 AS next
             FROM cipher_hints
@@ -301,6 +353,37 @@ router.patch("/hints/:hintId", requireAdmin, async (req, res) => {
     }
 
     try {
+        let hint = await pool.query(
+            `SELECT cipher_id FROM cipher_hints WHERE id = $1`,
+            [hintId]
+        );
+        if(hint.rowCount === 0) return res.status(404).json({error: "Hint not found"});
+        let cipherId = hint.rows[0].cipher_id;
+
+        // can't go negative
+        if(cost != null) {
+            let totalResult = await pool.query(
+                `SELECT COALESCE(SUM(cost), 9) AS total
+                FROM cipher_hints
+                WHERE cipher_id = $1 AND id != $2`,
+                [cipherId, hintId]
+            );
+            let total = Number(totalResult.rows[0].total);
+            
+            let pointsResult = await pool.query(
+                `SELECT points FROM ciphers WHERE id = $1`,
+                [cipherId]
+            );
+            if(pointsResult.rowCount === 0) return res.status(404).json({error: "Cipher not found"});
+            let points = Number(pointsResult.rows[0].points);
+
+            if(total + cost > points) {
+                return res.status(400).json({
+                    error: "Total hint cost can't exceed cipher points"
+                });
+            }
+        }
+
         let result = await pool.query(
             `UPDATE cipher_hints
             SET content = COALESCE($1, content),
