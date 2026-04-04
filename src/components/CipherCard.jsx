@@ -8,6 +8,7 @@ function CipherCard({
     onPreview,
     onDelete,
     onEdit,
+    onManageHints,
     state
 }) {
     let {
@@ -54,7 +55,11 @@ function CipherCard({
 
             <div className="actions">
                 <button onClick={(e) => {e.stopPropagation(); onPreview()}}>
-                    Preview PDF
+                    Preview
+                </button>
+                <button disabled={state !== "pending"}
+                    onClick={(e) => {e.stopPropagation(); onManageHints(cipher)}}>
+                    Hints
                 </button>
             </div>
             <div className="actions">
