@@ -4,6 +4,8 @@ function CipherForm({
     setName,
     solution,
     setSolution,
+    points,
+    setPoints,
     pdf,
     setPdf,
     onClose,
@@ -39,6 +41,13 @@ function CipherForm({
                     placeholder="Solution"
                     value={solution}
                     onChange={(e) => setSolution(e.target.value)}
+                />
+
+                <input
+                    placeholder="Points"
+                    type="number"
+                    value={points}
+                    onChange={(e) => setPoints(e.target.value)}
                 />
 
                 <input

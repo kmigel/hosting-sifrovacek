@@ -21,6 +21,7 @@ function CiphersPanel({gameId}) {
 
     let [name, setName] = useState("");
     let [solution, setSolution] = useState("");
+    let [points, setPoints] = useState("");
     let [pdf, setPdf] = useState(null);
 
     let [selectedCipher, setSelectedCipher] = useState(null);
@@ -45,6 +46,7 @@ function CiphersPanel({gameId}) {
         setError("");
         setName("");
         setSolution("");
+        setPoints("");
         setPdf(null);
         setSelectedCipher(null);
     }
@@ -108,6 +110,7 @@ function CiphersPanel({gameId}) {
             let formData = new FormData;
             formData.append("name", name);
             formData.append("solution", solution);
+            formData.append("points", points);
             formData.append("pdf", pdf);
             
             await api.post(`/cipher/${gameId}`, formData, {
@@ -138,6 +141,7 @@ function CiphersPanel({gameId}) {
             let formData = new FormData();
             if(name) formData.append("name", name);
             if(solution) formData.append("solution", solution);
+            if(points) formData.append("points", points);
             if(pdf) formData.append("pdf", pdf);
 
             let res = await api.patch(`/cipher/${id}`, formData, {
@@ -259,6 +263,8 @@ function CiphersPanel({gameId}) {
                     setName={setName}
                     solution={solution}
                     setSolution={setSolution}
+                    points={points}
+                    setPoints={setPoints}
                     pdf={pdf}
                     setPdf={setPdf}
                     onClose={cleanUp}
@@ -276,6 +282,8 @@ function CiphersPanel({gameId}) {
                 setName={setName}
                 solution={solution}
                 setSolution={setSolution}
+                points={points}
+                setPoints={setPoints}
                 pdf={pdf}
                 setPdf={setPdf}
                 onClose={cleanUp}

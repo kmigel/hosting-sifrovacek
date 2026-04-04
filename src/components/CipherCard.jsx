@@ -40,6 +40,13 @@ function CipherCard({
             </h3>
 
             <div className="data">
+                <div className="row monospace">
+                    <span className="label">Points:</span>
+                    <span>{cipher.points}</span>
+                </div>
+            </div>
+
+            <div className="data">
                 <div className="row">
                     <span className="label">Solution:</span>
                     <button onClick={(e) => {e.stopPropagation(); onToggleSolution(cipher.id)}}>
