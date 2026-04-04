@@ -15,7 +15,10 @@ function PlayGame() {
     let[index, setIndex] = useState(0);
     let[total, setTotal] = useState(null);
 
-    let[answer, setAnswer] = useState("");
+    let [answer, setAnswer] = useState("");
+    let [hints, setHints] = useState([]);
+    let [score, setScore] = useState(0);
+    let [points, setPoints] = useState(0);
 
     let[error, setError] = useState("");
 
@@ -60,7 +63,16 @@ function PlayGame() {
             }
             else {
                 setCipher(res.data);
+                setHints(res.data.hints || []);
                 setStatus("playing");
+
+                let maxPoints = res.data.points;
+                for(let hint of res.data.hints) {
+                    if(hint.unlocked) {
+                        maxPoints -= hint.cost;
+                    }
+                }
+                setPoints(maxPoints);
             }
         } catch(err) {
             console.error("Failed to get cipher:", err);
@@ -92,6 +104,16 @@ function PlayGame() {
         }
     }
 
+    async function unlockHint(hintId) {
+        try {
+            await api.post(`/game/${gameId}/team/${teamId}/hint/${hintId}`);
+            await getCurrent();
+        } catch(err) {
+            console.error("Failed to unlock hint", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
     return (
         <div className="page-wrapper">
             <header className='header'>
@@ -99,13 +121,13 @@ function PlayGame() {
                     ← Back
                 </button>
                 <h1>{game ? game.title : "Loading..."}</h1>
-                <h1>{index}</h1>
+                {cipher && <p>Cipher {index} of {total}</p>}
             </header>
 
             <section className='window-backdrop play-panel'>
-                {(game != null && game.state === "pending") ? (
+                {(game?.state === "pending") ? (
                     <h3>Game hasn't started yet</h3>
-                ) : (game != null && game.state === "finished") ? (
+                ) : (game?.state === "finished") ? (
                     <h3>Game has ended</h3>
                 ) : status === "done" ? (
                     <h3>You solved everything!</h3>
@@ -113,8 +135,12 @@ function PlayGame() {
                     <h3>Loading...</h3>
                 ) : (
                     <div className='window'>
-                        <h3>{cipher.name}</h3>
+                        <h2>{cipher.name}</h2>
+                        <span>
+                            Points for solving: {points} / {cipher.points}
+                        </span>
                         <button className='cancel-btn' onClick={() => previewPdf()}> View PDF</button>
+                        
                         <input
                             ref={inputRef}
                             placeholder="Your answer"
@@ -123,6 +149,24 @@ function PlayGame() {
                         />
                         <button type='submit' onClick={submitAnswer}>Submit</button>
                         {error != "" && <p className="error">{error}</p>}
+
+                        <div className='hints-section'>
+                            {console.log(hints[0])}
+                            <h2>Hints:</h2>
+                            {hints.length === 0 && <p>No hints available</p>}
+                            {hints.map((hint, pos) => (
+                                <div key={hint.id} className='hint-card'>
+                                    <h3>Hint {pos + 1}</h3>
+                                    <p>{hint.content}</p>
+                                    <p>Cost: {hint.cost}</p>
+                                    {!hint.unlocked && (
+                                        <button onClick={() => unlockHint(hint.id)}>
+                                            Unlock Hint
+                                        </button>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
                     </div>
                 )}
             </section>
