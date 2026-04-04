@@ -186,10 +186,12 @@ button {
     flex-wrap: wrap;
     gap: 1rem;
     overflow-wrap: anywhere;
-    overflow: auto;
+    overflow-y: auto;
+    overflow-x: hidden;
 
     .hint {
         min-width: 210px;
+        height: 100%;
     }
 }
 

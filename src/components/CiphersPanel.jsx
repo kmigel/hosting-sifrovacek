@@ -24,9 +24,6 @@ function CiphersPanel({gameId}) {
     let [pdf, setPdf] = useState(null);
 
     let [selectedCipher, setSelectedCipher] = useState(null);
-    let [hints, setHints] = useState([]);
-    let [content, setContent] = useState("");
-    let [cost, setCost] = useState(0);
 
     let [error, setError] = useState("");
 
@@ -50,11 +47,6 @@ function CiphersPanel({gameId}) {
         setSolution("");
         setPdf(null);
         setSelectedCipher(null);
-    }
-
-    function cleanHints() {
-        setContent("");
-        setCost(0);
     }
 
     useEffect(() => {
@@ -213,49 +205,6 @@ function CiphersPanel({gameId}) {
         }
     }
 
-    async function getHints(cipherId) {
-        try {
-            let res = await api.get(`/cipher/${cipherId}/hints`);
-            setHints(res.data);
-        } catch(err) {
-            console.error("Failed to get hints: ", err);
-        }
-    }
-
-    async function createHint() {
-        try {
-            await api.post(`/cipher/${selectedCipher.id}/hints`, {
-                content, cost
-            });
-
-            await getHints(selectedCipher.id);
-            cleanHints();
-        } catch(err) {
-            console.error("Failed to create hint", err);
-            setError(err.response?.data?.error || err.message);
-        }
-    }
-
-    async function updateHint(id, data) {
-        try {
-            await api.patch(`/cipher/hints/${id}`, data);
-            await getHints(selectedCipher.id);
-        } catch(err) {
-            console.error("Failed to update hint:", err);
-            setError(err.response?.data?.error || err.message);
-        }
-    }
-
-    async function deleteHint(id) {
-        try {
-            await api.delete(`/cipher/hints/${id}`);
-            getHints(selectedCipher.id);
-        } catch(err) {
-            console.log("Failed to delete hint:", err);
-            setError(err.response?.data?.error || err.message);
-        }
-    }
-
     return (
         <section className='panel-teams'>
             <div className='panel-header'>
@@ -294,10 +243,7 @@ function CiphersPanel({gameId}) {
                                 onPreview={() => previewPdf(cipher.id)}
                                 onDelete={() => setDeletedCipher(cipher)}
                                 onEdit={() => setEditCipher(cipher)}
-                                onManageHints={async (cipher) => {
-                                    await getHints(cipher.id);
-                                    setSelectedCipher(cipher);
-                                }}
+                                onManageHints={(cipher) => setSelectedCipher(cipher)}
                                 state={state}
                                 />
                             ))}
@@ -351,15 +297,8 @@ function CiphersPanel({gameId}) {
 
             {selectedCipher && (
                 <HintsPanel
+                    cipherId={selectedCipher.id}
                     name={selectedCipher.name}
-                    hints={hints}
-                    content={content}
-                    setContent={setContent}
-                    cost={cost}
-                    setCost={setCost}
-                    onAdd={createHint}
-                    onDelete={deleteHint}
-                    onEdit={updateHint}
                     onClose={() => {cleanUp(); setSelectedCipher(null)}}
                     inputRef={inputRef}
                     error={error}
