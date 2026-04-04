@@ -117,7 +117,7 @@ router.post("/answer", async(req, res) => {
             `DELETE FROM team_hint_usage
             WHERE team_id = $1 AND 
             hint_id IN (
-                SELECT id FROM cipher_hints AS ch
+                SELECT ch.id FROM cipher_hints AS ch
                 JOIN ciphers AS c on c.id = ch.cipher_id
                 WHERE c.game_id = $2 AND c.position = $3
             )`,
