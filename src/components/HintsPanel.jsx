@@ -10,11 +10,12 @@ function HintsPanel({
     name,
     onClose,
     inputRef,
-    error,
 }) {
     let [hints, setHints] = useState([]);
     let [content, setContent] = useState("");
     let [cost, setCost] = useState(0);
+    
+    let [error, setError] = useState("");
 
     useEffect(() => {
         getHints(cipherId);
@@ -23,6 +24,7 @@ function HintsPanel({
     function cleanUp() {
         setContent("");
         setCost(0);
+        setError("");
     }
 
     async function getHints(cipherId) {
@@ -172,7 +174,7 @@ function HintsPanel({
                     </button>
                 </div>
 
-                {error && <p className="error">{error}</p>}
+                {(error != "") && <p className="error">{error}</p>}
             </div>
         </div>
     );

@@ -301,7 +301,6 @@ function CiphersPanel({gameId}) {
                     name={selectedCipher.name}
                     onClose={() => {cleanUp(); setSelectedCipher(null)}}
                     inputRef={inputRef}
-                    error={error}
                 />
             )}
 
