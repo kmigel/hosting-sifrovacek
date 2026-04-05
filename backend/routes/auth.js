@@ -6,16 +6,13 @@ import jwt from "jsonwebtoken";
 const router = express.Router();
 
 router.post("/login", async(req, res) => {
-    console.log("Request received:", req.body);
     let {login, password} = req.body;
     if(!login || !password) {
         return res.status(400).json({error: "Missing fields"});
     }
 
     try {
-        console.log("Starting")
         let result = await pool.query("SELECT * FROM users WHERE login = $1", [login]);
-        console.log('Query result:', result.rows);
         let user = result.rows[0];
         if(!user) {
             return res.status(401).json({error: "Invalid credentials"});

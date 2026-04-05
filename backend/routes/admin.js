@@ -41,7 +41,7 @@ router.get("/", async(req, res) => {
         );
         res.status(200).json(result.rows);
     } catch(err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({error: "Database error"});
     }
 });
@@ -76,7 +76,7 @@ router.put("/:id", async(req, res) => {
         }
         res.status(200).json({success: true});
     } catch(err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({error: "Database error"});
     }
 });
@@ -99,7 +99,7 @@ router.delete("/:id", async(req, res) => {
 
         res.status(200).json({success: true});
     } catch(err) {
-        console.log(err);
+        console.error(err);
         res.status(500).json({error: "Database error"});
     }
 });
