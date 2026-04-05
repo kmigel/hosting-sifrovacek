@@ -133,31 +133,72 @@ router.delete("/:id", requireAdmin, async(req, res) => {
 
 router.post("/:id/start", requireAdmin, async(req, res) => {
     let {id} = req.params;
+    let {reset} = req.query;
+    let client = await pool.connect();
     try {
+        await client.query("BEGIN");
         let result = await pool.query(
             `SELECT * FROM ciphers WHERE game_id = $1`,
             [id]
         );
-        if(result.rowCount === 0) return res.status(400).json({error: "Cannot start a game with no ciphers"});
-
-        result = await pool.query(
-            `UPDATE games SET state = 'active'
-            WHERE id = $1 AND state = 'pending'
-            RETURNING *`,
-            [id]
-        );
         if(result.rowCount === 0) {
-            return res.status(409).json({error: "Game cannot be started"});
+            await client.query("ROLLBACK");
+            return res.status(400).json({error: "Cannot start a game with no ciphers"});
         }
 
-        await pool.query(
-            `UPDATE game_teams SET current = 1 WHERE game_id = $1`,
+        if(!reset) {
+            result = await pool.query(
+                `UPDATE games SET state = 'active'
+                WHERE id = $1 AND state = 'pending'
+                RETURNING *`,
+                [id]
+            );
+            if(result.rowCount === 0) {
+                await client.query("ROLLBACK");
+                return res.status(409).json({error: "Game cannot be started"});
+            }
+
+            await pool.query(
+                `UPDATE game_teams
+                SET current = 1, score = 0
+                WHERE game_id = $1`,
+                [id]
+            );
+        }
+        else {
+            result = await pool.query(
+                `UPDATE games SET state = 'pending'
+                WHERE id = $1
+                RETURNING *`,
+                [id]
+            );
+
+            await pool.query(
+                `UPDATE game_teams
+                SET current = 0, score = 0
+                WHERE game_id = $1`,
+                [id]
+            );
+        }
+
+        await client.query(
+            `DELETE FROM team_hint_usage
+            WHERE hint_id IN (
+                SELECT ch.id FROM cipher_hints AS ch
+                JOIN ciphers AS c ON c.id = ch.cipher_id
+                WHERE c.game_id = $1  
+            )`,
             [id]
         );
+
+        await client.query("COMMIT");
         res.status(200).json(result.rows[0]);
     } catch(err) {
+        await client.query("ROLLBACK");
         console.error(err);
         res.status(500).json({error: "Database error"});
+    } finally {
+        client.release();
     }
 });
 

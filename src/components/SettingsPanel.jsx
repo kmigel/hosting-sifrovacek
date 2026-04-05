@@ -39,6 +39,18 @@ function SettingsPanel({gameId}) {
         }
     }
 
+    async function restartGame() {
+        if(!window.confirm("Restart game? All progress will be lost.")) return;
+
+        try {
+            let res = await api.post(`/game/${gameId}/start?reset=true`);
+            setGame(res.data);
+        } catch(err) {
+            console.error("Failed to restart game:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
     async function toggleOrderedHints() {
         try {
             let res = await api.patch(`/game/${gameId}/hints`, {
@@ -65,22 +77,30 @@ function SettingsPanel({gameId}) {
                         <button onClick={startGame}>Start game</button>
                     )}
                     {game.state === "active" && (
-                        <div className='row'>
-                            <span>Game is running</span>
+                        <div>
+                            <p>Game is running</p>
                             <button className='delete-btn' onClick={endGame}>
                                 End game
                             </button>
                         </div>
                     )}
                     {game.state === "finished" && (
-                        <h3>Game finished</h3>
+                        <p>Game finished</p>
+                    )}
+
+                    {game.state !== "pending" && (
+                        <div className='row'>
+                            <button className='delete' onClick={restartGame}>
+                                Restart game
+                            </button>
+                        </div>
                     )}
                 </div>
 
                 <div className='card'>
                     <h3>Hints</h3>
                     <div className='row'>
-                        <span>Unlock hints in order</span>
+                        <p>Unlock hints in order</p>
                         <button className="edit-btn" onClick={toggleOrderedHints}>
                             {game.ordered_hints ? "ON" : "OFF"}
                         </button>
