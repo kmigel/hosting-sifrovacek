@@ -277,7 +277,7 @@ router.patch("/:gameId/leaderboard", requireAdmin, async(req, res) => {
         let result = await pool.query(
             `UPDATE games SET show_leaderboard = $1
             WHERE id = $2
-            RETURNING *`
+            RETURNING *`,
             [show, gameId]
         );
         return res.status(200).json(result.rows[0]);
