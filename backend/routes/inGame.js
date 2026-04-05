@@ -2,9 +2,11 @@ import express from "express";
 import pool from "../db.js";
 
 import verifyToken from "../middleware/verifyToken.js";
+import requireGameActive from "../middleware/requireGameActive.js";
 
 const router = express.Router({mergeParams: true});
 router.use(verifyToken);
+router.use(requireGameActive);
 
 router.get("/current", async(req, res) => {
     let {gameId, teamId} = req.params;
