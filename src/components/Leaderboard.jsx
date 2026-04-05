@@ -42,9 +42,9 @@ function Leaderboard({gameId}) {
                 <p className="empty">No teams</p>
             ) : (
                 <div className="leaderboard">
-                    {teams.map((team, index) => (
+                    {teams.map(team => (
                         <div key={team.id} className="row">
-                            <span>{index + 1}.</span>
+                            <span>{team.rank}.</span>
                             <span>{team.name}</span>
                             <span>{team.score}</span>
                         </div>

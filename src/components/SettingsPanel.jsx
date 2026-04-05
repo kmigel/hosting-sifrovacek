@@ -81,6 +81,19 @@ function SettingsPanel({gameId}) {
         }
     }
 
+    async function toggleTimeOrder() {
+        try {
+            let res = await api.patch(`/game/${gameId}/time-order`, {
+                enabled: !game.time_order
+            });
+            setGame(res.data);
+            setError("");
+        } catch(err) {
+            console.error("Failed to update settings:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
     if (!game) return null;
     return (
         <section className='panel-teams'>
@@ -138,6 +151,21 @@ function SettingsPanel({gameId}) {
                             {game.show_leaderboard ? "ON" : "OFF"}
                         </button>
                     </div>
+                </div>
+
+                <div className='card'>
+                    <h3>Order</h3>
+                    <div className='row'>
+                        <p>Order teams secondary by their time of submission</p>
+                        <button className="edit-btn" onClick={toggleTimeOrder}>
+                            {game.time_order ? "ON" : "OFF"}
+                        </button>
+                    </div>
+                    <p className='empty'>
+                        {game.time_order
+                            ? "Teams with same points will be on same place."
+                            : "Teams will be ordered by points and their time."}
+                    </p>
                 </div>
             </div>
 

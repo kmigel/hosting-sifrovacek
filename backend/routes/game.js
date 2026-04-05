@@ -247,14 +247,13 @@ router.get("/:gameId/leaderboard", async(req, res) => {
     let {gameId} = req.params;
     try {
         let game = await pool.query(
-            `SELECT show_leaderboard FROM games WHERE id = $1`,
+            `SELECT * FROM games WHERE id = $1`,
             [gameId]
         );
         if(game.rowCount === 0) return res.status(404).json({error: "Game not found"});
         if(!game.rows[0].show_leaderboard && req.user.role === "team") {
             return res.status(403).json({error: "Leaderboard disabled"});
         }
-
         let result = await pool.query(
             `SELECT u.id, u.name, gt.score, gt.last_update
             FROM game_teams AS gt
@@ -263,7 +262,23 @@ router.get("/:gameId/leaderboard", async(req, res) => {
             ORDER BY gt.score DESC, gt.last_update ASC`,
             [gameId]
         );
-        return res.status(200).json(result.rows);
+
+        let order = game.rows[0].time_order;
+        let teams = result.rows;
+        let rank = 0, realRank = 1, prev = -1;
+        for(let team of teams) {
+            if(order) {
+                team.rank = realRank;
+            }
+            else {
+                if(team.score != prev) rank = realRank;
+                prev = team.score;
+                team.rank = rank;
+            }
+            realRank++;
+        }
+
+        return res.status(200).json(teams);
     } catch(err) {
         console.error(err);
         return res.status(500).json({error: "Database error"});
@@ -286,6 +301,23 @@ router.patch("/:gameId/leaderboard", requireAdmin, async(req, res) => {
         return res.status(500).json({error: "Database error"});
     }
 });
+
+router.patch("/:gameId/time-order", requireAdmin, async(req, res) => {
+    let {gameId} = req.params;
+    let {enabled} = req.body;
+    try {
+        let result = await pool.query(
+            `UPDATE games SET time_order = $1
+            WHERE id = $2
+            RETURNING *`,
+            [enabled, gameId]
+        );
+        return res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+})
 
 router.patch("/:gameId/cipher", requireAdmin, requireGamePending, async(req, res) => {
     let {gameId} = req.params;
