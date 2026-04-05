@@ -13,6 +13,7 @@ function SettingsPanel({gameId}) {
         try {
             let res = await api.get(`/game/${gameId}`);
             setGame(res.data);
+            setError("");
         } catch(err) {
             console.error("Failed to get game:", err);
             setError(err.response?.data?.error || err.message);
@@ -23,6 +24,7 @@ function SettingsPanel({gameId}) {
         try {
             let res = await api.post(`/game/${gameId}/start`);
             setGame(res.data);
+            setError("");
         } catch(err) {
             console.error("Failed to start game:", err);
             setError(err.response?.data?.error || err.message);
@@ -33,6 +35,7 @@ function SettingsPanel({gameId}) {
         try {
             let res = await api.post(`/game/${gameId}/end`);
             setGame(res.data);
+            setError("");
         } catch(err) {
             console.error("Failed to end game:", err);
             setError(err.response?.data?.error || err.message);
@@ -45,6 +48,7 @@ function SettingsPanel({gameId}) {
         try {
             let res = await api.post(`/game/${gameId}/start?reset=true`);
             setGame(res.data);
+            setError("");
         } catch(err) {
             console.error("Failed to restart game:", err);
             setError(err.response?.data?.error || err.message);
@@ -57,6 +61,20 @@ function SettingsPanel({gameId}) {
                 orderedHints: !game.ordered_hints
             });
             setGame(res.data);
+            setError("");
+        } catch(err) {
+            console.error("Failed to update settings:", err);
+            setError(err.response?.data?.error || err.message);
+        }
+    }
+
+    async function toggleLeaderboard() {
+        try {
+            let res = await api.patch(`/game/${gameId}/leaderboard`, {
+                show: !game.show_leaderboard
+            });
+            setGame(res.data);
+            setError("");
         } catch(err) {
             console.error("Failed to update settings:", err);
             setError(err.response?.data?.error || err.message);
@@ -110,6 +128,16 @@ function SettingsPanel({gameId}) {
                             ? "Players must unlock hints sequentially."
                             : "Players can unlock hints in any order."}
                     </p>
+                </div>
+                
+                <div className='card'>
+                    <h3>Leaderboard</h3>
+                    <div className='row'>
+                        <p>Make leaderboard public</p>
+                        <button className="edit-btn" onClick={toggleLeaderboard}>
+                            {game.show_leaderboard ? "ON" : "OFF"}
+                        </button>
+                    </div>
                 </div>
             </div>
 

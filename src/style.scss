@@ -260,6 +260,15 @@ h2 {
     }
 }
 
+.leaderboard-header {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    gap: 0.4rem;
+}
+
 .leaderboard {
     display: flex;
     flex-direction: column;

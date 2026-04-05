@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams, useOutletContext} from "react-router-dom";
 import api from '../services/api';
+import Leaderboard from '../components/Leaderboard';
 
 function PlayGame() {
     const {user} = useOutletContext();
@@ -184,6 +185,10 @@ function PlayGame() {
                                 );
                             })}
                         </div>
+
+                        {game?.show_leaderboard && (
+                            <Leaderboard gameId={gameId} />
+                        )}
                     </div>
                 )}
             </section>

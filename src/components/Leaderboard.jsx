@@ -28,7 +28,7 @@ function Leaderboard({gameId}) {
 
     return (
         <section className='panel-teams'>
-            <div className='panel-header'>
+            <div className='leaderboard-header'>
                 <h2>Leaderboard</h2>
                 <div>
                     <span>Auto-refresh: </span>
