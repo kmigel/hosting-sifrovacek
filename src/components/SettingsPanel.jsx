@@ -70,7 +70,7 @@ function SettingsPanel({gameId}) {
                 <h2>Settings</h2>
             </div>
 
-            <div class='card-grid'>
+            <div className='card-grid'>
                 <div className='card'>
                     <h3>Game State</h3>
                     {game.state === "pending" && (

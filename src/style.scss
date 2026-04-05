@@ -260,6 +260,20 @@ h2 {
     }
 }
 
+.leaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+
+    .row {
+        display: flex;
+        justify-content: space-between;
+        background: #2a2a2a;
+        padding: 0.5rem;
+        border-radius: 6px;
+    }
+}
+
 .actions {
     display: flex;
     justify-content: flex-end;

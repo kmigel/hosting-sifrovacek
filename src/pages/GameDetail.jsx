@@ -9,6 +9,7 @@ import MainSidebar from "../components/MainSidebar"
 import TeamsPanel from '../components/TeamsPanel';
 import CiphersPanel from '../components/CiphersPanel';
 import SettingsPanel from '../components/SettingsPanel';
+import Leaderboard from '../components/Leaderboard';
 
 function GameDetail() {
   let { id } = useParams();
@@ -139,6 +140,13 @@ function GameDetail() {
 
           {section === "settings" && (
             <SettingsPanel
+              gameId={id}
+              state={state}
+            />
+          )}
+
+          {section === "leaderboard" && (
+            <Leaderboard
               gameId={id}
               state={state}
             />

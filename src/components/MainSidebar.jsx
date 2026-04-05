@@ -18,6 +18,12 @@ function MainSidebar({section, onChange}) {
           >
             Settings
           </button>
+
+          <button className={section === "leaderboard" ? "active" : ""}
+          onClick={() => onChange("leaderboard")}
+          >
+            Leaderboard
+          </button>
         </aside>
     )
 }
