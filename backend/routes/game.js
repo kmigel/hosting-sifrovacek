@@ -180,6 +180,24 @@ router.post("/:id/end", requireAdmin, async(req, res) => {
     }
 });
 
+router.patch("/:gameId/hints", requireAdmin, async(req, res) => {
+    let {gameId} = req.params;
+    let {orderedHints} = req.body;
+    try {
+        let result = await pool.query(
+            `UPDATE games
+            SET ordered_hints = COALESCE($1, ordered_hints)
+            WHERE id = $2
+            RETURNING *`,
+            [orderedHints, gameId]
+        );
+        return res.status(200).json(result.rows[0]);
+    } catch(err) {
+        console.error(err);
+        return res.status(500).json({error: "Database error"});
+    }
+});
+
 router.patch("/:gameId/cipher", requireAdmin, requireGamePending, async(req, res) => {
     let {gameId} = req.params;
     let {order} = req.body;

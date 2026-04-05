@@ -19,6 +19,7 @@ function PlayGame() {
     let [hints, setHints] = useState([]);
     let [score, setScore] = useState(0);
     let [points, setPoints] = useState(0);
+    let [orderedHints, setOrderedHints] = useState(null);
 
     let[error, setError] = useState("");
 
@@ -37,6 +38,7 @@ function PlayGame() {
         try {
             let res = await api.get(`/game/${gameId}`);
             setGame(res.data);
+            setOrderedHints(res.data.ordered_hints);
         } catch(err) {
             console.error("Failed to get game:", err);
             navigate("/dashboard");
@@ -154,18 +156,27 @@ function PlayGame() {
                             {console.log(hints[0])}
                             <h2>Hints:</h2>
                             {hints.length === 0 && <p>No hints available</p>}
-                            {hints.map((hint, pos) => (
-                                <div key={hint.id} className='hint-card'>
-                                    <h3>Hint {pos + 1}</h3>
-                                    <p>{hint.content}</p>
-                                    <p>Cost: {hint.cost}</p>
-                                    {!hint.unlocked && (
-                                        <button onClick={() => unlockHint(hint.id)}>
-                                            Unlock Hint
-                                        </button>
-                                    )}
-                                </div>
-                            ))}
+                            {hints.map((hint, pos) => {
+                                let prev = pos === 0 || hints[pos - 1].unlocked;
+                                let canUnlock = !orderedHints || prev;
+
+                                return (
+                                    <div key={hint.id} className='hint-card'>
+                                        <h3>Hint {pos + 1}</h3>
+                                        <p>{hint.content}</p>
+                                        <p>Cost: {hint.cost}</p>
+                                        {!hint.unlocked && (
+                                            <button
+                                                disabled={!canUnlock}
+                                                title={!canUnlock ? "Unlock previous hint first" : ""}
+                                                onClick={() => unlockHint(hint.id)}
+                                            >
+                                                Unlock Hint
+                                            </button>
+                                        )}
+                                    </div>
+                                );
+                            })}
                         </div>
                     </div>
                 )}
