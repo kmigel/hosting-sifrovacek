@@ -12,19 +12,20 @@ router.get("/current", async(req, res) => {
     let {gameId, teamId} = req.params;
     try {
         let result = await pool.query(
-            `SELECT current FROM game_teams
+            `SELECT current, score FROM game_teams
             WHERE game_id = $1 AND team_id = $2`,
             [gameId, teamId]
         );
         if(result.rowCount === 0) return res.status(404).json({error: "Team not assigned"});
         let current = result.rows[0].current;
+        let score = result.rows[0].score;
 
         result = await pool.query(
             `SELECT * FROM ciphers
             WHERE game_id = $1 AND position = $2`,
             [gameId, current]
         );
-        if(result.rowCount === 0) return res.status(200).json({current: current});
+        if(result.rowCount === 0) return res.status(200).json({current: current, score: score});
 
         let cipher = result.rows[0];
         let cipherId = cipher.id;
@@ -55,6 +56,7 @@ router.get("/current", async(req, res) => {
 
         cipher.current = current;
         cipher.hints = hints;
+        cipher.score = score;
         return res.status(200).json(cipher);
     } catch (err) {
         console.error(err);

@@ -236,6 +236,30 @@ h2 {
     }
 }
 
+.in-game {
+    > * {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .score-box {
+        text-align: right;
+        
+        span {
+            font-size: 0.8rem;
+            color: #bbb;
+        }
+
+        h2 {
+            margin: 0;
+            color: #ce4a4a;
+            border: none;
+        }
+    }
+}
+
 .actions {
     display: flex;
     justify-content: flex-end;

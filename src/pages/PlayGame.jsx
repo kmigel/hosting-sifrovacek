@@ -59,6 +59,7 @@ function PlayGame() {
             let res = await api.get(`/game/${gameId}/team/${teamId}/current`);
             let cur = res.data.current;
             setIndex(cur);
+            setScore(res.data.score);
             if(cur > totalCiphers) {
                 setCipher(null);
                 setStatus("done");
@@ -118,12 +119,18 @@ function PlayGame() {
 
     return (
         <div className="page-wrapper">
-            <header className='header'>
+            <header className='header in-game'>
                 <button className='back-btn' onClick={() => navigate("/dashboard")}>
                     ← Back
                 </button>
-                <h1>{game ? game.title : "Loading..."}</h1>
-                {cipher && <p>Cipher {index} of {total}</p>}
+                <div>
+                    <h1>{game ? game.title : "Loading..."}</h1>
+                    {cipher && <p>Cipher {index} of {total}</p>}
+                </div>
+                <div className='score-box'>
+                    <span>Score</span>
+                    <h2>{score}</h2>
+                </div>
             </header>
 
             <section className='window-backdrop play-panel'>
@@ -153,7 +160,6 @@ function PlayGame() {
                         {error != "" && <p className="error">{error}</p>}
 
                         <div className='hints-section'>
-                            {console.log(hints[0])}
                             <h2>Hints:</h2>
                             {hints.length === 0 && <p>No hints available</p>}
                             {hints.map((hint, pos) => {
