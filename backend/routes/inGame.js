@@ -106,7 +106,8 @@ router.post("/answer", async(req, res) => {
         let updateResult = await client.query(
             `UPDATE game_teams
             SET current = current + 1,
-                score = score + $1
+                score = score + $1,
+                last_update = NOW()
             WHERE game_id = $2 AND team_id = $3 AND current = $4`,
             [award, gameId, teamId, position]
         );
