@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react'
-import './Login.scss'
+import '../assets/Login.scss'
 import {login} from "../services/login"
 import { useNavigate } from "react-router-dom";
 

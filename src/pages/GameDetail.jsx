@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useParams} from "react-router-dom";
-import './GameDetail.scss'
+import '../assets/GameDetail.scss'
 import api from '../services/api';
 
 import GameForm from '../components/GameForm';

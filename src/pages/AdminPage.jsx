@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import './UserPage.scss';
+import '../assets/UserPage.scss';
 import api from '../services/api'
 import UserForm from '../components/UserForm'
 import DeleteConfirm from '../components/DeleteConfirm';
