@@ -1,7 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
-import TeamCard from "../components/TeamCard";
-import UserForm from '../components/UserForm';
+import TeamCard from '../components/cards/TeamCard';
+import UserForm from '../components/forms/UserForm';
 import DeleteConfirm from '../components/DeleteConfirm';
 import api from '../services/api';
 

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom';
 import '../assets/UserPage.scss';
 import api from '../services/api'
-import UserForm from '../components/UserForm'
+import UserForm from '../components/forms/UserForm';
 import DeleteConfirm from '../components/DeleteConfirm';
 
 function AdminPage() {

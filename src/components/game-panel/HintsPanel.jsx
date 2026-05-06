@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
-import HintCard from "./HintCard";
 import {DndContext, closestCenter, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
 import {SortableContext, rectSortingStrategy, arrayMove} from "@dnd-kit/sortable";
 import {restrictToParentElement} from "@dnd-kit/modifiers";
-import api from "../services/api";
+import api from "../../services/api";
+import HintCard from '../cards/HintCard';
 
 function HintsPanel({
     cipherId,

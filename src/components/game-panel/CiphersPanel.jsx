@@ -2,10 +2,10 @@ import React, { useState, useRef, useEffect } from 'react'
 import {DndContext, closestCenter, PointerSensor, useSensor, useSensors} from "@dnd-kit/core";
 import {SortableContext, rectSortingStrategy, arrayMove} from "@dnd-kit/sortable";
 import {restrictToParentElement} from "@dnd-kit/modifiers";
-import api from '../services/api';
-import CipherCard from './CipherCard';
-import CipherForm from './CipherForm';
-import DeleteConfirm from './DeleteConfirm';
+import api from '../../services/api';
+import CipherCard from '../cards/CipherCard';
+import CipherForm from '../forms/CipherForm';
+import DeleteConfirm from '../DeleteConfirm';
 import HintsPanel from './HintsPanel';
 
 function CiphersPanel({gameId}) {

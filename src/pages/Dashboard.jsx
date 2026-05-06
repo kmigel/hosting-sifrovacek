@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react'
 import { useNavigate, useOutletContext } from 'react-router-dom';
 import '../assets/Dashboard.scss'
 import api from '../services/api'
-import GameForm from '../components/GameForm';
+import GameForm from '../components/forms/GameForm';
 
 function Dashboard() {
   const {user} = useOutletContext();

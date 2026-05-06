@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react'
-import TeamCard from "./TeamCard";
-import api from '../services/api';
+import TeamCard from "../cards/TeamCard";
+import api from '../../services/api';
 
 function TeamsPanel({gameId}) {
     let [teams, setTeams] = useState([]);

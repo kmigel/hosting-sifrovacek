@@ -3,12 +3,12 @@ import { useNavigate, useParams} from "react-router-dom";
 import '../assets/GameDetail.scss'
 import api from '../services/api';
 
-import GameForm from '../components/GameForm';
+import GameForm from '../components/forms/GameForm';
 import DeleteConfirm from '../components/DeleteConfirm';
-import MainSidebar from "../components/MainSidebar"
-import TeamsPanel from '../components/TeamsPanel';
-import CiphersPanel from '../components/CiphersPanel';
-import SettingsPanel from '../components/SettingsPanel';
+import MainSidebar from '../components/game-panel/MainSidebar';
+import TeamsPanel from '../components/game-panel/TeamsPanel';
+import CiphersPanel from '../components/game-panel/CiphersPanel';
+import SettingsPanel from '../components/game-panel/SettingsPanel';
 import Leaderboard from '../components/Leaderboard';
 
 function GameDetail() {
