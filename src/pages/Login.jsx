@@ -41,7 +41,6 @@ function Login() {
             return;
         }
 
-        console.log("logged in");
         navigate("/dashboard");
     }
 
