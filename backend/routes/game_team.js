@@ -61,9 +61,19 @@ router.post("/:teamId", async(req, res) => {
             return res.status(409).json({error: "Team already assigned"});
         }
 
+        let current = 0;
+        let state = await pool.query(
+            "SELECT state FROM games WHERE id = $1",
+            [gameId]
+        );
+        if(state.rows[0].state === "active") {
+            current = 1;
+        }
+
+
         await pool.query(
-            "INSERT INTO game_teams (game_id, team_id) VALUES ($1, $2)",
-            [gameId, teamId]
+            "INSERT INTO game_teams (game_id, team_id, current) VALUES ($1, $2, $3)",
+            [gameId, teamId, current]
         );
 
         return res.status(201).json({success: true});
